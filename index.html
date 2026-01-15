@@ -3,32 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lagune 1 Vocabulary Learner</title>
+    <title>Lagune 1 Smart Flashcards</title>
     <style>
+        :root {
+            --primary: #2c3e50;
+            --primary-light: #34495e;
+            --accent: #27ae60;
+            --bg: #ecf0f1;
+            --card-bg: #ffffff;
+            --text: #2c3e50;
+            --danger: #e74c3c;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f4f9;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
             display: flex;
             flex-direction: column;
             align-items: center;
-            min-height: 100vh;
+            height: 100vh;
             margin: 0;
-            padding: 20px;
+            overflow: hidden; /* Prevent body scroll, handle inside elements */
         }
 
-        h1 {
-            color: #333;
-            margin-bottom: 10px;
-            text-align: center;
+        /* --- Header & Top Bar --- */
+        .top-bar {
+            width: 100%;
+            max-width: 600px;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-sizing: border-box;
         }
 
-        /* --- Card Styles --- */
+        .app-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 0;
+        }
+
+        .menu-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--primary);
+            padding: 5px;
+            border-radius: 5px;
+            transition: background 0.2s;
+        }
+        .menu-btn:hover { background-color: rgba(0,0,0,0.05); }
+
+        /* --- Main Card Area --- */
+        .main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            padding-bottom: 20px;
+        }
+
         .card-container {
             perspective: 1000px;
             width: 320px;
-            height: 220px;
+            height: 240px;
             cursor: pointer;
-            margin: 20px 0;
+            position: relative;
         }
 
         .card {
@@ -36,15 +81,12 @@
             height: 100%;
             position: relative;
             transform-style: preserve-3d;
-            transition: transform 0.6s;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            border-radius: 15px;
-            background-color: white;
+            transition: transform 0.5s cubic-bezier(0.4, 0.2, 0.2, 1);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
 
-        .card.is-flipped {
-            transform: rotateY(180deg);
-        }
+        .card.is-flipped { transform: rotateY(180deg); }
 
         .card-face {
             position: absolute;
@@ -55,183 +97,273 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            border-radius: 15px;
+            border-radius: 20px;
+            background: var(--card-bg);
             padding: 20px;
             box-sizing: border-box;
             text-align: center;
+            border: 1px solid rgba(0,0,0,0.05);
         }
 
-        .card-front { background-color: #fff; border: 2px solid #ddd; }
-        .card-back { background-color: #f9f9f9; transform: rotateY(180deg); border: 2px solid #ddd; }
+        .card-back { transform: rotateY(180deg); background-color: #fdfdfd; }
 
-        .word-text { font-size: 2em; font-weight: bold; margin-bottom: 10px; }
-        .gender-article { font-size: 0.8em; margin-right: 8px; font-weight: normal; }
-        .meaning-text { font-size: 1.4em; color: #555; line-height: 1.3; }
+        /* Typography */
+        .word-text { font-size: 2.2rem; font-weight: 700; margin-bottom: 5px; }
+        .gender-article { font-size: 1rem; font-weight: 400; color: #7f8c8d; display: block; margin-bottom: 5px; }
+        .meaning-text { font-size: 1.4rem; color: #555; line-height: 1.4; }
+        .hint { font-size: 0.8rem; color: #bdc3c7; margin-top: 15px; font-weight: 300; }
 
-        /* Color Coding */
-        .masculine { color: #d32f2f; } /* Red */
-        .feminine { color: #1976d2; } /* Blue */
-        .neutral { color: #000000; }  /* Black */
+        /* Gender Colors */
+        .masculine { color: #c0392b; } /* Red */
+        .feminine { color: #2980b9; } /* Blue */
+        .neutral { color: #2c3e50; }  /* Dark/Black */
 
-        /* --- Controls --- */
-        .controls {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            justify-content: center;
-            margin-bottom: 20px;
-        }
-
-        button {
-            padding: 10px 20px;
-            font-size: 1em;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background 0.2s, transform 0.1s;
-            color: white;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-        button:active { transform: scale(0.98); }
-
-        .btn-main { background-color: #00796b; } /* Teal */
-        .btn-main:hover { background-color: #004d40; }
-        
-        .btn-speak { background-color: #e65100; display: flex; align-items: center; gap: 5px;} /* Orange */
-        .btn-speak:hover { background-color: #bf360c; }
-
-        .btn-add { background-color: #1976d2; } /* Blue */
-        .btn-add:hover { background-color: #0d47a1; }
-
-        .btn-reset { background-color: #555; font-size: 0.8em; padding: 8px 15px; }
-        .btn-reset:hover { background-color: #333; }
-
-        .progress { color: #666; font-size: 0.9em; margin-bottom: 10px;}
-        .hint { font-size: 0.8em; color: #aaa; margin-top: 15px; }
-
-        /* --- Add Word Modal Form --- */
-        #add-form-container {
-            display: none; /* Hidden by default */
-            background: white;
-            border: 2px solid #ddd;
+        /* --- Bottom Controls --- */
+        .controls-area {
+            width: 100%;
+            max-width: 400px;
             padding: 20px;
-            border-radius: 10px;
-            width: 300px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            box-sizing: border-box;
             margin-bottom: 20px;
         }
 
-        .form-group { margin-bottom: 15px; text-align: left; }
-        label { display: block; margin-bottom: 5px; color: #333; font-weight: bold; }
-        input, select { 
-            width: 100%; padding: 8px; box-sizing: border-box; 
-            border: 1px solid #ccc; border-radius: 4px; 
+        .btn {
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 15px 20px;
+            transition: transform 0.1s, opacity 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            color: white;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        .form-buttons { display: flex; gap: 10px; justify-content: flex-end; }
+        .btn:active { transform: scale(0.96); }
+        .btn:disabled { opacity: 0.5; cursor: default; transform: none; box-shadow: none; }
 
-        /* Notification Toast */
-        #toast {
-            visibility: hidden;
-            min-width: 250px;
-            background-color: #333;
-            color: #fff;
-            text-align: center;
-            border-radius: 4px;
-            padding: 16px;
+        .btn-next { background-color: var(--primary); flex: 2; }
+        .btn-speak { background-color: var(--accent); flex: 1; }
+        .btn-undo { background-color: #95a5a6; flex: 0.5; padding: 15px; } /* Square-ish */
+
+        .progress-indicator {
+            font-size: 0.85rem;
+            color: #7f8c8d;
+            margin-bottom: 10px;
+        }
+
+        /* --- MODAL (Manager) --- */
+        .modal-overlay {
+            display: none;
             position: fixed;
-            z-index: 1;
-            bottom: 30px;
-            font-size: 17px;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(3px);
+            z-index: 2000;
+            justify-content: center;
+            align-items: flex-end; /* Mobile: slide from bottom */
         }
-        #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
+        
+        @media(min-width: 600px) {
+            .modal-overlay { align-items: center; }
+            .modal-content { height: 85vh; border-radius: 15px; }
+        }
 
-        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
-        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+        .modal-content {
+            background: white;
+            width: 100%;
+            max-width: 500px;
+            height: 90vh; /* Takes up most of screen on mobile */
+            border-radius: 20px 20px 0 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+        .modal-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f9f9f9;
+        }
+        .modal-title { font-weight: bold; font-size: 1.1rem; }
+        .close-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #7f8c8d; }
+
+        /* Manager Form */
+        .manager-form { padding: 15px; background: #fff; border-bottom: 1px solid #eee; }
+        .form-row { display: flex; gap: 10px; margin-bottom: 10px; }
+        .input-group { flex: 1; }
+        
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            box-sizing: border-box;
+            background: #fafafa;
+        }
+        input:focus { outline: none; border-color: var(--primary); background: #fff; }
+
+        .btn-add { background-color: var(--primary); width: 100%; padding: 10px; border-radius: 8px; }
+        .btn-update { background-color: var(--accent); width: 100%; padding: 10px; border-radius: 8px; display: none; }
+
+        /* Word List */
+        .word-list-wrapper { flex: 1; overflow-y: auto; background: #fdfdfd; }
+        .word-list { list-style: none; padding: 0; margin: 0; }
+        
+        .list-item {
+            padding: 12px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.1s;
+        }
+        .list-item:hover { background-color: #f5f5f5; }
+
+        .item-content { flex: 1; padding-right: 10px; }
+        .item-header { font-weight: 600; font-size: 1rem; color: var(--text); }
+        .item-sub { font-size: 0.85rem; color: #7f8c8d; }
+        
+        .item-actions { display: flex; gap: 8px; }
+        .action-btn {
+            background: none; border: none; font-size: 1.1rem; cursor: pointer; opacity: 0.6; padding: 5px;
+        }
+        .action-btn:hover { opacity: 1; transform: scale(1.1); }
+        .btn-edit { color: var(--primary); }
+        .btn-delete { color: var(--danger); }
+
+        .badge {
+            display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px;
+        }
+        .bg-r { background-color: #c0392b; }
+        .bg-e { background-color: #2980b9; }
+        .bg-s { background-color: #2c3e50; }
+
+        .modal-footer {
+            padding: 15px;
+            background: #f9f9f9;
+            text-align: center;
+            border-top: 1px solid #eee;
+        }
+        .link-reset { font-size: 0.8rem; color: #95a5a6; text-decoration: underline; cursor: pointer; background:none; border:none;}
 
     </style>
 </head>
 <body>
 
-    <h1>Lagune 1 Flashcards<br><small style="font-size:0.6em; color:#777;">Deutsch Lernwortschatz</small></h1>
+    <div class="top-bar">
+        <div class="app-title">Lagune 1</div>
+        <button class="menu-btn" onclick="openManager()" title="Manage List">☰</button>
+    </div>
 
-    <div class="progress" id="progress-text">Loading...</div>
+    <div class="main-container">
+        
+        <div class="progress-indicator" id="progress-text">Loading...</div>
 
-    <div class="card-container" onclick="flipCard()">
-        <div class="card" id="flashcard">
-            <div class="card-face card-front">
-                <div id="german-word" class="word-text">
+        <div class="card-container" onclick="flipCard()">
+            <div class="card" id="flashcard">
+                <div class="card-face card-front">
                     <span id="article" class="gender-article"></span>
-                    <span id="noun">Willkommen</span>
+                    <div id="german-word" class="word-text">Start</div>
+                    <div class="hint">(Tap to flip)</div>
                 </div>
-                <div class="hint">(Tap to flip)</div>
+                <div class="card-face card-back">
+                    <div id="english-meaning" class="meaning-text">...</div>
+                </div>
             </div>
-            <div class="card-face card-back">
-                <div id="english-meaning" class="meaning-text">Welcome</div>
+        </div>
+
+    </div>
+
+    <div class="controls-area">
+        <button class="btn btn-undo" id="btn-undo" onclick="undoLastWord()" title="Go back to previous word" disabled>
+            ↩
+        </button>
+        <button class="btn btn-speak" onclick="speakWord(event)">
+            🔊 Speak
+        </button>
+        <button class="btn btn-next" onclick="nextWord(event)">
+            Next ➡
+        </button>
+    </div>
+
+
+    <div id="manager-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-title">Word List</span>
+                <button class="close-btn" onclick="closeManager()">×</button>
+            </div>
+
+            <div class="manager-form">
+                <input type="hidden" id="edit-index" value="-1">
+                <div class="form-row">
+                    <select id="new-gender" style="flex: 0.4;">
+                        <option value="r">Der</option>
+                        <option value="e">Die</option>
+                        <option value="s">Das</option>
+                    </select>
+                    <input type="text" id="new-word" placeholder="German Word">
+                </div>
+                <div class="form-row">
+                    <input type="text" id="new-meaning" placeholder="English Meaning">
+                </div>
+                
+                <button id="btn-add" class="btn btn-add" onclick="addNewWord()">+ Add Word</button>
+                <button id="btn-update" class="btn btn-update" onclick="updateWord()">✓ Save Changes</button>
+            </div>
+
+            <div class="word-list-wrapper">
+                <ul class="word-list" id="word-list-container">
+                    </ul>
+            </div>
+
+            <div class="modal-footer">
+                <button class="link-reset" onclick="resetProgress()">Reset Progress / Reload Defaults</button>
             </div>
         </div>
     </div>
-
-    <div class="controls">
-        <button class="btn-speak" onclick="speakWord(event)">🔊 Hören</button>
-        <button class="btn-main" onclick="nextWord(event)">Next Word</button>
-        <button class="btn-add" onclick="toggleAddForm()">+ Add New</button>
-    </div>
-
-    <button class="btn-reset" onclick="resetProgress()">Reset Progress (Start Over)</button>
-
-    <div id="add-form-container">
-        <h3>Add New Word</h3>
-        <div class="form-group">
-            <label>Gender:</label>
-            <select id="new-gender">
-                <option value="r">Der (Masculine)</option>
-                <option value="e">Die (Feminine)</option>
-                <option value="s">Das (Neutral)</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label>German Noun:</label>
-            <input type="text" id="new-word" placeholder="e.g. Tisch">
-        </div>
-        <div class="form-group">
-            <label>English Meaning:</label>
-            <input type="text" id="new-meaning" placeholder="e.g. Table">
-        </div>
-        <div class="form-buttons">
-            <button class="btn-reset" style="background:#ccc; color:#333" onclick="toggleAddForm()">Cancel</button>
-            <button class="btn-main" onclick="saveNewWord()">Save Word</button>
-        </div>
-    </div>
-
-    <div id="toast">Word Added!</div>
 
     <script>
-        // --- 1. DEFAULT DATA (Units 1-30) ---
-        // This is used if the user has no saved data in their browser.
+        // --- DATA SET (Units 1-30) ---
         const defaultVocabulary = [
             { g: 'r', w: 'Abfall', m: 'Waste / Trash' }, { g: 's', w: 'Baby', m: 'Baby' }, { g: 'e', w: 'Bank', m: 'Bench / Bank' },
             { g: 'e', w: 'Blume', m: 'Flower' }, { g: 'r', w: 'Bus', m: 'Bus' }, { g: 'r', w: 'Film', m: 'Film / Movie' },
-            { g: 'e', w: 'Frau', m: 'Woman / Wife' }, { g: 's', w: 'Geschenk', m: 'Gift' }, { g: 's', w: 'Gleis', m: 'Track / Platform' },
-            { g: 'r', w: 'Herr', m: 'Gentleman / Mr.' }, { g: 's', w: 'Hotel', m: 'Hotel' }, { g: 'e', w: 'Information', m: 'Information' },
+            { g: 'e', w: 'Frau', m: 'Woman' }, { g: 's', w: 'Geschenk', m: 'Gift' }, { g: 's', w: 'Gleis', m: 'Track' },
+            { g: 'r', w: 'Herr', m: 'Gentleman' }, { g: 's', w: 'Hotel', m: 'Hotel' }, { g: 'e', w: 'Information', m: 'Info' },
             { g: 'r', w: 'Junge', m: 'Boy' }, { g: 's', w: 'Mädchen', m: 'Girl' }, { g: 'r', w: 'Moment', m: 'Moment' },
-            { g: 'r', w: 'Name', m: 'Name' }, { g: 'e', w: 'Polizistin', m: 'Policewoman' }, { g: 'e', w: 'Reise', m: 'Journey / Trip' },
-            { g: 'r', w: 'Reporter', m: 'Reporter' }, { g: 'r', w: 'Saft', m: 'Juice' }, { g: 'e', w: 'Sängerin', m: 'Singer (female)' },
+            { g: 'r', w: 'Name', m: 'Name' }, { g: 'e', w: 'Polizistin', m: 'Policewoman' }, { g: 'e', w: 'Reise', m: 'Trip' },
+            { g: 'r', w: 'Reporter', m: 'Reporter' }, { g: 'r', w: 'Saft', m: 'Juice' }, { g: 'e', w: 'Sängerin', m: 'Singer (f)' },
             { g: 'e', w: 'Seite', m: 'Page' }, { g: 'r', w: 'Tag', m: 'Day' }, { g: 's', w: 'Taxi', m: 'Taxi' },
-            { g: 's', w: 'Telefon', m: 'Telephone' }, { g: 'e', w: 'Toilette', m: 'Toilet' }, { g: 'r', w: 'Tourist', m: 'Tourist (male)' },
-            { g: 'e', w: 'Uhr', m: 'Clock / Watch' }, { g: 'e', w: 'Verkäuferin', m: 'Saleswoman' }, { g: 'e', w: 'Zeitung', m: 'Newspaper' },
+            { g: 's', w: 'Telefon', m: 'Telephone' }, { g: 'e', w: 'Toilette', m: 'Toilet' }, { g: 'r', w: 'Tourist', m: 'Tourist' },
+            { g: 'e', w: 'Uhr', m: 'Clock' }, { g: 'e', w: 'Verkäuferin', m: 'Saleswoman' }, { g: 'e', w: 'Zeitung', m: 'Newspaper' },
             { g: 's', w: 'Zentrum', m: 'Center' }, { g: 'r', w: 'Zoo', m: 'Zoo' }, { g: 'r', w: 'Zug', m: 'Train' },
-            { g: 'e', w: 'Antwort', m: 'Answer' }, { g: 'r', w: 'Bahnhof', m: 'Train Station' }, { g: 'e', w: 'Frage', m: 'Question' },
+            { g: 'e', w: 'Antwort', m: 'Answer' }, { g: 'r', w: 'Bahnhof', m: 'Station' }, { g: 'e', w: 'Frage', m: 'Question' },
             { g: 's', w: 'Klavier', m: 'Piano' }, { g: 'e', w: 'Lösung', m: 'Solution' }, { g: 'r', w: 'Mann', m: 'Man' },
             { g: 'r', w: 'Mensch', m: 'Human' }, { g: 'e', w: 'Musik', m: 'Music' }, { g: 'r', w: 'Polizist', m: 'Policeman' },
-            { g: 'r', w: 'Sänger', m: 'Singer (male)' }, { g: 'r', w: 'Text', m: 'Text' }, { g: 'e', w: 'Vergangenheit', m: 'Past' },
+            { g: 'r', w: 'Sänger', m: 'Singer (m)' }, { g: 'r', w: 'Text', m: 'Text' }, { g: 'e', w: 'Vergangenheit', m: 'Past' },
             { g: 'r', w: 'Verkäufer', m: 'Salesman' }, { g: 's', w: 'Wort', m: 'Word' }, { g: 'e', w: 'Zukunft', m: 'Future' },
             { g: 's', w: 'Auto', m: 'Car' }, { g: 'r', w: 'Ball', m: 'Ball' }, { g: 'r', w: 'Automat', m: 'Vending Machine' },
             { g: 'e', w: 'Fahrkarte', m: 'Ticket' }, { g: 'e', w: 'Flasche', m: 'Bottle' }, { g: 's', w: 'Geld', m: 'Money' },
-            { g: 's', w: 'Gepäck', m: 'Luggage' }, { g: 'r', w: 'Kaffee', m: 'Coffee' }, { g: 's', w: 'Gespräch', m: 'Conversation' },
+            { g: 's', w: 'Gepäck', m: 'Luggage' }, { g: 'r', w: 'Kaffee', m: 'Coffee' }, { g: 's', w: 'Gespräch', m: 'Chat' },
             { g: 's', w: 'Kind', m: 'Child' }, { g: 'r', w: 'Koffer', m: 'Suitcase' }, { g: 'r', w: 'Krankenwagen', m: 'Ambulance' },
             { g: 'e', w: 'Mutter', m: 'Mother' }, { g: 'e', w: 'Nummer', m: 'Number' }, { g: 's', w: 'Polizeiauto', m: 'Police Car' },
             { g: 's', w: 'Radio', m: 'Radio' }, { g: 'r', w: 'Partner', m: 'Partner' }, { g: 'r', w: 'Satz', m: 'Sentence' },
-            { g: 'r', w: 'Sohn', m: 'Son' }, { g: 'e', w: 'Tasche', m: 'Bag / Pocket' }, { g: 'r', w: 'Tee', m: 'Tea' },
+            { g: 'r', w: 'Sohn', m: 'Son' }, { g: 'e', w: 'Tasche', m: 'Bag' }, { g: 'r', w: 'Tee', m: 'Tea' },
             { g: 'e', w: 'Tochter', m: 'Daughter' }, { g: 'r', w: 'Unfall', m: 'Accident' }, { g: 's', w: 'Würstchen', m: 'Sausage' },
             { g: 'r', w: 'Bruder', m: 'Brother' }, { g: 'e', w: 'Familie', m: 'Family' }, { g: 'e', w: 'Großmutter', m: 'Grandmother' },
             { g: 'r', w: 'Großvater', m: 'Grandfather' }, { g: 'r', w: 'Hund', m: 'Dog' }, { g: 's', w: 'Jahr', m: 'Year' },
@@ -249,17 +381,17 @@
             { g: 'r', w: 'Zettel', m: 'Note' }, { g: 'e', w: 'Übung', m: 'Exercise' },
             { g: 'r', w: 'Beruf', m: 'Profession' }, { g: 'r', w: 'Campingplatz', m: 'Campsite' }, { g: 's', w: 'Computerspiel', m: 'Computer Game' },
             { g: 'r', w: 'Freund', m: 'Friend' }, { g: 's', w: 'Handy', m: 'Mobile Phone' }, { g: 's', w: 'Hobby', m: 'Hobby' },
-            { g: 'e', w: 'Jacke', m: 'Jacket' }, { g: 'e', w: 'Katze', m: 'Cat' }, { g: 'e', w: 'Lehrerin', m: 'Teacher (female)' },
+            { g: 'e', w: 'Jacke', m: 'Jacket' }, { g: 'e', w: 'Katze', m: 'Cat' }, { g: 'e', w: 'Lehrerin', m: 'Teacher (f)' },
             { g: 'e', w: 'Minute', m: 'Minute' }, { g: 's', w: 'Problem', m: 'Problem' }, { g: 'r', w: 'Pullover', m: 'Sweater' },
             { g: 'r', w: 'Rucksack', m: 'Backpack' }, { g: 'r', w: 'Schlafsack', m: 'Sleeping Bag' }, { g: 'r', w: 'Schuh', m: 'Shoe' },
             { g: 's', w: 'Spiel', m: 'Game' }, { g: 'e', w: 'Stunde', m: 'Hour' }, { g: 's', w: 'Zelt', m: 'Tent' },
             { g: 'r', w: 'Apfel', m: 'Apple' }, { g: 'e', w: 'Banane', m: 'Banana' }, { g: 'r', w: 'Bart', m: 'Beard' },
             { g: 's', w: 'Bier', m: 'Beer' }, { g: 's', w: 'Brot', m: 'Bread' }, { g: 'r', w: 'Frisör', m: 'Hairdresser' },
             { g: 's', w: 'Gesicht', m: 'Face' }, { g: 's', w: 'Haar', m: 'Hair' }, { g: 'e', w: 'Krankenschwester', m: 'Nurse' },
-            { g: 's', w: 'Mineralwasser', m: 'Mineral Water' }, { g: 's', w: 'Rad', m: 'Wheel / Bike' }, { g: 's', w: 'Wasser', m: 'Water' },
+            { g: 's', w: 'Mineralwasser', m: 'Mineral Water' }, { g: 's', w: 'Rad', m: 'Wheel' }, { g: 's', w: 'Wasser', m: 'Water' },
             { g: 'r', w: 'Wein', m: 'Wine' }, { g: 'e', w: 'Zeichnung', m: 'Drawing' },
             { g: 's', w: 'Angebot', m: 'Offer' }, { g: 'r', w: 'Euro', m: 'Euro' }, { g: 'e', w: 'Freundin', m: 'Girlfriend' },
-            { g: 'r', w: 'Geburtstag', m: 'Birthday' }, { g: 's', w: 'Kaufhaus', m: 'Department Store' }, { g: 's', w: 'Lebensmittel', m: 'Groceries' },
+            { g: 'r', w: 'Geburtstag', m: 'Birthday' }, { g: 's', w: 'Kaufhaus', m: 'Store' }, { g: 's', w: 'Lebensmittel', m: 'Groceries' },
             { g: 'r', w: 'Markt', m: 'Market' }, { g: 'e', w: 'Milch', m: 'Milk' }, { g: 'e', w: 'Pizza', m: 'Pizza' },
             { g: 'r', w: 'Preis', m: 'Price' }, { g: 'r', w: 'Supermarkt', m: 'Supermarket' }, { g: 'e', w: 'Tomate', m: 'Tomato' },
             { g: 'r', w: 'Abend', m: 'Evening' }, { g: 'r', w: 'Autor', m: 'Author' }, { g: 'e', w: 'Butter', m: 'Butter' },
@@ -275,33 +407,33 @@
             { g: 'e', w: 'Sekretärin', m: 'Secretary' }, { g: 'r', w: 'Sport', m: 'Sport' }, { g: 'e', w: 'Sprache', m: 'Language' },
             { g: 'e', w: 'Straße', m: 'Street' }, { g: 'e', w: 'Telefonnummer', m: 'Phone Number' }, { g: 'r', w: 'Wohnort', m: 'Residence' },
             { g: 's', w: 'Land', m: 'Country' },
-            { g: 'r', w: 'Computer', m: 'Computer' }, { g: 's', w: 'Fahrrad', m: 'Bicycle' }, { g: 's', w: 'Fernsehgerät', m: 'TV Set' },
+            { g: 'r', w: 'Computer', m: 'Computer' }, { g: 's', w: 'Fahrrad', m: 'Bicycle' }, { g: 's', w: 'Fernsehgerät', m: 'TV' },
             { g: 's', w: 'Feuerzeug', m: 'Lighter' }, { g: 'r', w: 'Fotoapparat', m: 'Camera' }, { g: 'e', w: 'Gabel', m: 'Fork' },
             { g: 'r', w: 'Geschirrspüler', m: 'Dishwasher' }, { g: 'r', w: 'Hammer', m: 'Hammer' }, { g: 'e', w: 'Kerze', m: 'Candle' },
             { g: 'r', w: 'Mantel', m: 'Coat' }, { g: 's', w: 'Messer', m: 'Knife' }, { g: 'r', w: 'Nagel', m: 'Nail' },
             { g: 'r', w: 'Regenschirm', m: 'Umbrella' }, { g: 'e', w: 'Sonnenbrille', m: 'Sunglasses' }, { g: 'r', w: 'Topf', m: 'Pot' },
-            { g: 'r', w: 'Umzug', m: 'Move (relocation)' },
+            { g: 'r', w: 'Umzug', m: 'Move' },
             { g: 'e', w: 'CD', m: 'CD' }, { g: 's', w: 'Haus', m: 'House' }, { g: 'r', w: 'Kühlschrank', m: 'Fridge' },
             { g: 's', w: 'Leben', m: 'Life' }, { g: 's', w: 'Möbel', m: 'Furniture' }, { g: 's', w: 'Schlafzimmer', m: 'Bedroom' },
             { g: 'r', w: 'Sommer', m: 'Summer' }, { g: 's', w: 'Tier', m: 'Animal' }, { g: 'r', w: 'Tisch', m: 'Table' },
             { g: 'r', w: 'Winter', m: 'Winter' }, { g: 'e', w: 'Wohnung', m: 'Apartment' }, { g: 's', w: 'Zimmer', m: 'Room' },
-            { g: 'e', w: 'Anzeige', m: 'Advertisement' }, { g: 's', w: 'Apartment', m: 'Apartment' }, { g: 'r', w: 'Balkon', m: 'Balcony' },
+            { g: 'e', w: 'Anzeige', m: 'Ad' }, { g: 's', w: 'Apartment', m: 'Apartment' }, { g: 'r', w: 'Balkon', m: 'Balcony' },
             { g: 's', w: 'Bett', m: 'Bed' }, { g: 'r', w: 'Herd', m: 'Stove' }, { g: 'e', w: 'Küche', m: 'Kitchen' },
             { g: 'e', w: 'Lampe', m: 'Lamp' }, { g: 'r', w: 'Löffel', m: 'Spoon' }, { g: 'e', w: 'Miete', m: 'Rent' },
             { g: 'r', w: 'Schreibtisch', m: 'Desk' }, { g: 'r', w: 'Stuhl', m: 'Chair' }, { g: 'e', w: 'Uni', m: 'University' },
             { g: 'r', w: 'Bleistift', m: 'Pencil' }, { g: 'r', w: 'Fernseher', m: 'TV' }, { g: 's', w: 'Foto', m: 'Photo' },
             { g: 'r', w: 'Spiegel', m: 'Mirror' }, { g: 's', w: 'Wörterbuch', m: 'Dictionary' },
-            { g: 's', w: 'Abendkleid', m: 'Evening Gown' }, { g: 'r', w: 'Autoschlüssel', m: 'Car Key' }, { g: 's', w: 'Bad', m: 'Bath/Bathroom' },
-            { g: 'e', w: 'Europakarte', m: 'Map of Europe' }, { g: 's', w: 'Fax', m: 'Fax' }, { g: 's', w: 'Geschäft', m: 'Shop / Business' },
+            { g: 's', w: 'Abendkleid', m: 'Evening Gown' }, { g: 'r', w: 'Autoschlüssel', m: 'Car Key' }, { g: 's', w: 'Bad', m: 'Bath' },
+            { g: 'e', w: 'Europakarte', m: 'Map' }, { g: 's', w: 'Fax', m: 'Fax' }, { g: 's', w: 'Geschäft', m: 'Shop' },
             { g: 'e', w: 'Hauptstadt', m: 'Capital City' }, { g: 'e', w: 'Jugendherberge', m: 'Youth Hostel' }, { g: 's', w: 'Kleid', m: 'Dress' },
             { g: 'e', w: 'Kontaktlinse', m: 'Contact Lens' }, { g: 'e', w: 'Kreditkarte', m: 'Credit Card' }, { g: 's', w: 'Museum', m: 'Museum' },
             { g: 'r', w: 'Rasierapparat', m: 'Shaver' }, { g: 's', w: 'Restaurant', m: 'Restaurant' }, { g: 'e', w: 'Rezeption', m: 'Reception' },
-            { g: 'r', w: 'Scheck', m: 'Check (Bank)' }, { g: 'r', w: 'Schlüssel', m: 'Key' }, { g: 's', w: 'Wohnzimmer', m: 'Living Room' },
+            { g: 'r', w: 'Scheck', m: 'Check' }, { g: 'r', w: 'Schlüssel', m: 'Key' }, { g: 's', w: 'Wohnzimmer', m: 'Living Room' },
             { g: 'r', w: 'Zimmerschlüssel', m: 'Room Key' },
-            { g: 'e', w: 'Ampel', m: 'Traffic Light' }, { g: 'e', w: 'Angst', m: 'Fear' }, { g: 'e', w: 'Bademütze', m: 'Swimming Cap' },
-            { g: 'e', w: 'Feuerwehr', m: 'Fire Department' }, { g: 'r', w: 'Fußgänger', m: 'Pedestrian (male)' }, { g: 'e', w: 'Fußgängerin', m: 'Pedestrian (female)' },
+            { g: 'e', w: 'Ampel', m: 'Traffic Light' }, { g: 'e', w: 'Angst', m: 'Fear' }, { g: 'e', w: 'Bademütze', m: 'Swim Cap' },
+            { g: 'e', w: 'Feuerwehr', m: 'Fire Dept' }, { g: 'r', w: 'Fußgänger', m: 'Pedestrian' },
             { g: 'e', w: 'Hausaufgabe', m: 'Homework' }, { g: 'e', w: 'Krawatte', m: 'Tie' }, { g: 'r', w: 'Motorradfahrer', m: 'Motorcyclist' },
-            { g: 'e', w: 'Pause', m: 'Break' }, { g: 'e', w: 'Radfahrerin', m: 'Cyclist (female)' }, { g: 'e', w: 'Ruhe', m: 'Quiet / Rest' },
+            { g: 'e', w: 'Pause', m: 'Break' }, { g: 'e', w: 'Radfahrerin', m: 'Cyclist (f)' }, { g: 'e', w: 'Ruhe', m: 'Quiet' },
             { g: 's', w: 'Schild', m: 'Sign' }, { g: 's', w: 'Stoppschild', m: 'Stop Sign' }, { g: 'r', w: 'Teilnehmer', m: 'Participant' },
             { g: 'r', w: 'Wasserball', m: 'Water Ball' }, { g: 'r', w: 'Zahn', m: 'Tooth' },
             { g: 's', w: 'Bonbon', m: 'Candy' }, { g: 'e', w: 'Brücke', m: 'Bridge' }, { g: 's', w: 'Gedicht', m: 'Poem' },
@@ -314,13 +446,13 @@
             { g: 'e', w: 'Wand', m: 'Wall' }, { g: 'e', w: 'Zigarette', m: 'Cigarette' },
             { g: 'r', w: 'Augenblick', m: 'Moment' }, { g: 'r', w: 'Babysitter', m: 'Babysitter' }, { g: 'r', w: 'Besuch', m: 'Visit' },
             { g: 'r', w: 'Drucker', m: 'Printer' }, { g: 's', w: 'Ende', m: 'End' }, { g: 's', w: 'Fenster', m: 'Window' },
-            { g: 'e', w: 'Klasse', m: 'Class' }, { g: 's', w: 'Licht', m: 'Light' }, { g: 'e', w: 'Lust', m: 'Desire / Mood' },
-            { g: 'r', w: 'Schüler', m: 'Student' }, { g: 'e', w: 'Tür', m: 'Door' }, { g: 'r', w: 'Unterricht', m: 'Lesson / Class' },
+            { g: 'e', w: 'Klasse', m: 'Class' }, { g: 's', w: 'Licht', m: 'Light' }, { g: 'e', w: 'Lust', m: 'Mood' },
+            { g: 'r', w: 'Schüler', m: 'Student' }, { g: 'e', w: 'Tür', m: 'Door' }, { g: 'r', w: 'Unterricht', m: 'Lesson' },
             { g: 'r', w: 'Delfin', m: 'Dolphin' }, { g: 'e', w: 'Idee', m: 'Idea' }, { g: 'r', w: 'Papagei', m: 'Parrot' },
             { g: 'r', w: 'Rekorder', m: 'Recorder' }, { g: 'r', w: 'Ski', m: 'Ski' }, { g: 'e', w: 'Zeit', m: 'Time' },
-            { g: 'r', w: 'Anruf', m: 'Call' }, { g: 's', w: 'Büro', m: 'Office' }, { g: 'e', w: 'Chefin', m: 'Boss (female)' },
+            { g: 'r', w: 'Anruf', m: 'Call' }, { g: 's', w: 'Büro', m: 'Office' }, { g: 'e', w: 'Chefin', m: 'Boss (f)' },
             { g: 'r', w: 'Fernsehfilm', m: 'TV Movie' }, { g: 'r', w: 'Kundendienst', m: 'Customer Service' }, { g: 'r', w: 'Mitarbeiter', m: 'Employee' },
-            { g: 'e', w: 'Nachricht', m: 'Message / News' }, { g: 'e', w: 'Notiz', m: 'Note' }, { g: 'r', w: 'Notizzettel', m: 'Notepad' },
+            { g: 'e', w: 'Nachricht', m: 'Message' }, { g: 'e', w: 'Notiz', m: 'Note' }, { g: 'r', w: 'Notizzettel', m: 'Notepad' },
             { g: 's', w: 'Parkhaus', m: 'Parking Garage' }, { g: 'e', w: 'Taube', m: 'Pigeon' }, { g: 'r', w: 'Turm', m: 'Tower' },
             { g: 'e', w: 'Waschmaschine', m: 'Washing Machine' }, { g: 's', w: 'Wochenende', m: 'Weekend' },
             { g: 'r', w: 'Teller', m: 'Plate' }, { g: 'e', w: 'Bäckerei', m: 'Bakery' }, { g: 'r', w: 'Teppich', m: 'Carpet' },
@@ -329,117 +461,117 @@
             { g: 'r', w: 'Igel', m: 'Hedgehog' }, { g: 'r', w: 'Kellner', m: 'Waiter' }, { g: 'r', w: 'Kopf', m: 'Head' },
             { g: 'e', w: 'Laterne', m: 'Lantern' }, { g: 'e', w: 'Leiter', m: 'Ladder' }, { g: 's', w: 'Mofa', m: 'Moped' },
             { g: 'e', w: 'Mücke', m: 'Mosquito' }, { g: 'e', w: 'Mütze', m: 'Cap' }, { g: 's', w: 'Papier', m: 'Paper' },
-            { g: 's', w: 'Tuch', m: 'Cloth / Scarf' }, { g: 'r', w: 'Wurm', m: 'Worm' }, { g: 'r', w: 'Pfarrer', m: 'Pastor' },
+            { g: 's', w: 'Tuch', m: 'Cloth' }, { g: 'r', w: 'Wurm', m: 'Worm' }, { g: 'r', w: 'Pfarrer', m: 'Pastor' },
             { g: 's', w: 'Pferd', m: 'Horse' }, { g: 'e', w: 'Pfütze', m: 'Puddle' }, { g: 'e', w: 'Puppe', m: 'Doll' },
             { g: 'r', w: 'Schrank', m: 'Cupboard' }, { g: 's', w: 'Sofa', m: 'Sofa' }, { g: 'r', w: 'Stall', m: 'Stable' },
             { g: 'e', w: 'Apotheke', m: 'Pharmacy' }, { g: 'r', w: 'Arm', m: 'Arm' }, { g: 'r', w: 'Arzt', m: 'Doctor' },
-            { g: 'e', w: 'Ärztin', m: 'Doctor (female)' }, { g: 'e', w: 'Arztpraxis', m: 'Medical Practice' }, { g: 'r', w: 'Augenarzt', m: 'Ophthalmologist' },
+            { g: 'e', w: 'Ärztin', m: 'Doctor (f)' }, { g: 'e', w: 'Arztpraxis', m: 'Practice' }, { g: 'r', w: 'Augenarzt', m: 'Eye Doctor' },
             { g: 'r', w: 'Autofahrer', m: 'Driver' }, { g: 's', w: 'Bein', m: 'Leg' }, { g: 'r', w: 'Bericht', m: 'Report' },
-            { g: 'r', w: 'Besucher', m: 'Visitor' }, { g: 'e', w: 'Blumenhändlerin', m: 'Florist (female)' }, { g: 'e', w: 'Brust', m: 'Chest/Breast' },
-            { g: 's', w: 'Unfallopfer', m: 'Accident Victim' }, { g: 'r', w: 'Unfallort', m: 'Accident Scene' }, { g: 'e', w: 'Uniform', m: 'Uniform' },
+            { g: 'r', w: 'Besucher', m: 'Visitor' }, { g: 'e', w: 'Blumenhändlerin', m: 'Florist' }, { g: 'e', w: 'Brust', m: 'Chest' },
+            { g: 's', w: 'Unfallopfer', m: 'Victim' }, { g: 'r', w: 'Unfallort', m: 'Scene' }, { g: 'e', w: 'Uniform', m: 'Uniform' },
             { g: 'r', w: 'Verkehr', m: 'Traffic' }, { g: 'e', w: 'Vorsicht', m: 'Caution' }, { g: 'r', w: 'Zahnarzt', m: 'Dentist' },
-            { g: 'e', w: 'Zahnarztpraxis', m: 'Dental Practice' }, { g: 'e', w: 'Zentrale', m: 'Headquarters' }, { g: 'e', w: 'Buchhandlung', m: 'Bookstore' },
+            { g: 'e', w: 'Zahnarztpraxis', m: 'Dentist Office' }, { g: 'e', w: 'Zentrale', m: 'HQ' }, { g: 'e', w: 'Buchhandlung', m: 'Bookstore' },
             { g: 'r', w: 'Doktor', m: 'Doctor' }, { g: 'r', w: 'Eingang', m: 'Entrance' }, { g: 'r', w: 'Fahrer', m: 'Driver' },
-            { g: 'e', w: 'Fahrt', m: 'Drive / Journey' }, { g: 'r', w: 'Feuerwehrmann', m: 'Firefighter' }, { g: 's', w: 'Frisörgeschäft', m: 'Hair Salon' },
+            { g: 'e', w: 'Fahrt', m: 'Drive' }, { g: 'r', w: 'Feuerwehrmann', m: 'Firefighter' }, { g: 's', w: 'Frisörgeschäft', m: 'Hair Salon' },
             { g: 'r', w: 'Hafen', m: 'Harbor' }, { g: 's', w: 'Hafenkrankenhaus', m: 'Harbor Hospital' }, { g: 'r', w: 'Haken', m: 'Hook' },
-            { g: 'r', w: 'Hals-Nasen-Ohren-Arzt', m: 'ENT Doctor' }, { g: 'r', w: 'Job', m: 'Job' }, { g: 'r', w: 'Kinderwagen', m: 'Stroller' },
+            { g: 'r', w: 'Job', m: 'Job' }, { g: 'r', w: 'Kinderwagen', m: 'Stroller' },
             { g: 'e', w: 'Kosmetikerin', m: 'Beautician' }, { g: 's', w: 'Kosmetikgeschäft', m: 'Cosmetics Shop' }, { g: 's', w: 'Krankenhaus', m: 'Hospital' },
-            { g: 'r', w: 'Krankenpfleger', m: 'Nurse (male)' }, { g: 'r', w: 'Lebensretter', m: 'Lifeguard' }, { g: 'e', w: 'Notärztin', m: 'Emergency Doctor (female)' },
-            { g: 'r', w: 'Notarztwagen', m: 'Ambulance' }, { g: 'e', w: 'Notaufnahme', m: 'Emergency Room' }, { g: 's', w: 'Opfer', m: 'Victim' },
+            { g: 'r', w: 'Krankenpfleger', m: 'Nurse (m)' }, { g: 'r', w: 'Lebensretter', m: 'Lifeguard' }, { g: 'e', w: 'Notärztin', m: 'ER Doctor (f)' },
+            { g: 'r', w: 'Notarztwagen', m: 'Ambulance' }, { g: 'e', w: 'Notaufnahme', m: 'ER' }, { g: 's', w: 'Opfer', m: 'Victim' },
             { g: 'r', w: 'Personenwagen', m: 'Car' }, { g: 'e', w: 'Praxis', m: 'Practice' }, { g: 'e', w: 'Reaktion', m: 'Reaction' },
             { g: 'r', w: 'Sanitäter', m: 'Paramedic' }, { g: 's', w: 'Schiff', m: 'Ship' }, { g: 'r', w: 'Schirm', m: 'Umbrella' },
-            { g: 'r', w: 'Schmerz', m: 'Pain' }, { g: 'e', w: 'Sprechstunde', m: 'Consultation Hour' }, { g: 's', w: 'Tempo', m: 'Speed' }, { g: 'r', w: 'Tod', m: 'Death' },
+            { g: 'r', w: 'Schmerz', m: 'Pain' }, { g: 'e', w: 'Sprechstunde', m: 'Consultation' }, { g: 's', w: 'Tempo', m: 'Speed' }, { g: 'r', w: 'Tod', m: 'Death' },
             { g: 'e', w: 'Ankunft', m: 'Arrival' }, { g: 'e', w: 'Ansage', m: 'Announcement' }, { g: 'r', w: 'Anschluss', m: 'Connection' },
             { g: 's', w: 'Bahnhofscafé', m: 'Station Cafe' }, { g: 'r', w: 'Bahnsteig', m: 'Platform' }, { g: 'r', w: 'Blumenladen', m: 'Flower Shop' },
-            { g: 'e', w: 'Decke', m: 'Blanket / Ceiling' }, { g: 's', w: 'Ehepaar', m: 'Married Couple' }, { g: 'r', w: 'Einbrecher', m: 'Burglar' },
-            { g: 'e', w: 'Einladung', m: 'Invitation' }, { g: 's', w: 'Essen', m: 'Food / Meal' }, { g: 'r', w: 'Flughafen', m: 'Airport' },
+            { g: 'e', w: 'Decke', m: 'Blanket' }, { g: 's', w: 'Ehepaar', m: 'Couple' }, { g: 'r', w: 'Einbrecher', m: 'Burglar' },
+            { g: 'e', w: 'Einladung', m: 'Invitation' }, { g: 's', w: 'Essen', m: 'Food' }, { g: 'r', w: 'Flughafen', m: 'Airport' },
             { g: 'r', w: 'Gast', m: 'Guest' }, { g: 's', w: 'Getränk', m: 'Drink' }, { g: 's', w: 'Glas', m: 'Glass' },
-            { g: 'r', w: 'ICE', m: 'Intercity Express' }, { g: 'r', w: 'Käfig', m: 'Cage' }, { g: 'r', w: 'Keller', m: 'Cellar' },
+            { g: 'r', w: 'ICE', m: 'ICE Train' }, { g: 'r', w: 'Käfig', m: 'Cage' }, { g: 'r', w: 'Keller', m: 'Cellar' },
             { g: 'r', w: 'Teddy', m: 'Teddy Bear' }, { g: 'r', w: 'Tomatensalat', m: 'Tomato Salad' }, { g: 'e', w: 'Vase', m: 'Vase' },
             { g: 'e', w: 'Verspätung', m: 'Delay' }, { g: 'r', w: 'Wald', m: 'Forest' }, { g: 'e', w: 'Wasserflasche', m: 'Water Bottle' },
             { g: 'e', w: 'Wurst', m: 'Sausage' }, { g: 'r', w: 'Kartoffelsalat', m: 'Potato Salad' }, { g: 'r', w: 'Ketchup', m: 'Ketchup' },
             { g: 'r', w: 'Laden', m: 'Shop' }, { g: 'r', w: 'Museumsplatz', m: 'Museum Square' }, { g: 'e', w: 'Party', m: 'Party' },
-            { g: 'r', w: 'Platz', m: 'Place / Square' }, { g: 'r', w: 'Raum', m: 'Room' }, { g: 'r', w: 'See', m: 'Lake' },
+            { g: 'r', w: 'Platz', m: 'Square' }, { g: 'r', w: 'Raum', m: 'Room' }, { g: 'r', w: 'See', m: 'Lake' },
             { g: 'r', w: 'Senf', m: 'Mustard' }, { g: 'r', w: 'Sportler', m: 'Athlete' }, { g: 'e', w: 'Station', m: 'Station' },
-            { g: 'e', w: 'Suppe', m: 'Soup' }, { g: 'e', w: 'Tafel', m: 'Blackboard / Table' }, { g: 'r', w: 'Taxifahrer', m: 'Taxi Driver' },
+            { g: 'e', w: 'Suppe', m: 'Soup' }, { g: 'e', w: 'Tafel', m: 'Board' }, { g: 'r', w: 'Taxifahrer', m: 'Taxi Driver' },
             { g: 'r', w: 'Ausflug', m: 'Excursion' }, { g: 'e', w: 'Burg', m: 'Castle' }, { g: 'e', w: 'Bushaltestelle', m: 'Bus Stop' },
             { g: 's', w: 'Café', m: 'Cafe' }, { g: 's', w: 'Computergeschäft', m: 'Computer Shop' }, { g: 'r', w: 'Dom', m: 'Cathedral' },
             { g: 's', w: 'Doppelzimmer', m: 'Double Room' }, { g: 'e', w: 'Ecke', m: 'Corner' }, { g: 's', w: 'Einzelzimmer', m: 'Single Room' },
-            { g: 'e', w: 'Entschuldigung', m: 'Apology / Excuse' }, { g: 'e', w: 'Fahrradvermietung', m: 'Bike Rental' }, { g: 's', w: 'Frühstück', m: 'Breakfast' },
+            { g: 'e', w: 'Entschuldigung', m: 'Excuse' }, { g: 'e', w: 'Fahrradvermietung', m: 'Bike Rental' }, { g: 's', w: 'Frühstück', m: 'Breakfast' },
             { g: 'e', w: 'Halbpension', m: 'Half Board' }, { g: 'e', w: 'Haltestelle', m: 'Stop' }, { g: 'e', w: 'Hauptstraße', m: 'Main Street' },
-            { g: 'r', w: 'Internet-Anschluss', m: 'Internet Connection' }, { g: 'r', w: 'Kindergarten', m: 'Kindergarten' }, { g: 'e', w: 'Kirche', m: 'Church' },
-            { g: 's', w: 'Konzert', m: 'Concert' }, { g: 'e', w: 'Konzertkarte', m: 'Concert Ticket' }, { g: 'e', w: 'Kreuzung', m: 'Intersection' },
-            { g: 's', w: 'Lokal', m: 'Pub / Restaurant' }, { g: 'e', w: 'Nacht', m: 'Night' }, { g: 'e', w: 'Nähe', m: 'Vicinity' },
+            { g: 'r', w: 'Internet-Anschluss', m: 'Internet' }, { g: 'r', w: 'Kindergarten', m: 'Kindergarten' }, { g: 'e', w: 'Kirche', m: 'Church' },
+            { g: 's', w: 'Konzert', m: 'Concert' }, { g: 'e', w: 'Konzertkarte', m: 'Ticket' }, { g: 'e', w: 'Kreuzung', m: 'Intersection' },
+            { g: 's', w: 'Lokal', m: 'Pub' }, { g: 'e', w: 'Nacht', m: 'Night' }, { g: 'e', w: 'Nähe', m: 'Vicinity' },
             { g: 'e', w: 'Post', m: 'Post Office' }, { g: 's', w: 'Rathaus', m: 'Town Hall' }, { g: 'r', w: 'Regen', m: 'Rain' },
             { g: 's', w: 'Reisebüro', m: 'Travel Agency' }, { g: 's', w: 'Schloss', m: 'Castle' }, { g: 'e', w: 'Schule', m: 'School' },
-            { g: 's', w: 'Schwimmbad', m: 'Swimming Pool' }, { g: 'e', w: 'Sehenswürdigkeit', m: 'Sight' }, { g: 'r', w: 'Sportplatz', m: 'Sports Field' },
+            { g: 's', w: 'Schwimmbad', m: 'Pool' }, { g: 'e', w: 'Sehenswürdigkeit', m: 'Sight' }, { g: 'r', w: 'Sportplatz', m: 'Sports Field' },
             { g: 'e', w: 'Straßenbahn', m: 'Tram' }, { g: 'e', w: 'Straßenbahnhaltestelle', m: 'Tram Stop' }, { g: 's', w: 'Stück', m: 'Piece' },
             { g: 'e', w: 'Telefonzelle', m: 'Phone Booth' }, { g: 'r', w: 'Tennisplatz', m: 'Tennis Court' }, { g: 'e', w: 'Touristeninformation', m: 'Tourist Info' },
-            { g: 'e', w: 'Übernachtung', m: 'Overnight Stay' }, { g: 'e', w: 'Ursache', m: 'Cause' }, { g: 'e', w: 'Vollpension', m: 'Full Board' },
-            { g: 'r', w: 'Wanderweg', m: 'Hiking Trail' }, { g: 'r', w: 'Weg', m: 'Way / Path' },
+            { g: 'e', w: 'Übernachtung', m: 'Stay' }, { g: 'e', w: 'Ursache', m: 'Cause' }, { g: 'e', w: 'Vollpension', m: 'Full Board' },
+            { g: 'r', w: 'Wanderweg', m: 'Trail' }, { g: 'r', w: 'Weg', m: 'Path' },
             { g: 'e', w: 'Abfahrt', m: 'Departure' }, { g: 'e', w: 'Anreise', m: 'Arrival' }, { g: 'r', w: 'August', m: 'August' },
-            { g: 'e', w: 'Autobahn', m: 'Highway' }, { g: 'e', w: 'Autobahn-Abfahrt', m: 'Highway Exit' }, { g: 'r', w: 'Bauernhof', m: 'Farm' },
-            { g: 'e', w: 'Bilddatenbank', m: 'Image Database' }, { g: 'e', w: 'Bitte', m: 'Request' }, { g: 'e', w: 'Bundesstraße', m: 'Federal Road' },
+            { g: 'e', w: 'Autobahn', m: 'Highway' }, { g: 'e', w: 'Autobahn-Abfahrt', m: 'Exit' }, { g: 'r', w: 'Bauernhof', m: 'Farm' },
+            { g: 'e', w: 'Bilddatenbank', m: 'Database' }, { g: 'e', w: 'Bitte', m: 'Request' }, { g: 'e', w: 'Bundesstraße', m: 'Road' },
             { g: 's', w: 'Clubhaus', m: 'Clubhouse' }, { g: 'e', w: 'Dame', m: 'Lady' }, { g: 's', w: 'Erlebnis', m: 'Experience' },
             { g: 'r', w: 'Fakt', m: 'Fact' }, { g: 'e', w: 'Geburtstagsfeier', m: 'Birthday Party' }, { g: 'r', w: 'Hauptbahnhof', m: 'Central Station' },
-            { g: 'e', w: 'Hoteladresse', m: 'Hotel Address' }, { g: 'e', w: 'Internet-Seite', m: 'Website' }, { g: 'r', w: 'Juli', m: 'July' },
-            { g: 'r', w: 'Kilometer', m: 'Kilometer' }, { g: 's', w: 'Kinderzimmer', m: 'Children\'s Room' }, { g: 'e', w: 'Kultur', m: 'Culture' },
-            { g: 'e', w: 'Kurve', m: 'Curve' }, { g: 'r', w: 'Lageplan', m: 'Site Plan' }, { g: 'e', w: 'Linie', m: 'Line' },
-            { g: 'r', w: 'Link', m: 'Link' }, { g: 'r', w: 'Parkplatz', m: 'Parking Lot' }, { g: 'r', w: 'Plan', m: 'Plan / Map' },
+            { g: 'e', w: 'Hoteladresse', m: 'Address' }, { g: 'e', w: 'Internet-Seite', m: 'Website' }, { g: 'r', w: 'Juli', m: 'July' },
+            { g: 'r', w: 'Kilometer', m: 'Kilometer' }, { g: 's', w: 'Kinderzimmer', m: 'Kids Room' }, { g: 'e', w: 'Kultur', m: 'Culture' },
+            { g: 'e', w: 'Kurve', m: 'Curve' }, { g: 'r', w: 'Lageplan', m: 'Map' }, { g: 'e', w: 'Linie', m: 'Line' },
+            { g: 'r', w: 'Link', m: 'Link' }, { g: 'r', w: 'Parkplatz', m: 'Parking' }, { g: 'r', w: 'Plan', m: 'Plan' },
             { g: 'r', w: 'Prospekt', m: 'Brochure' }, { g: 'e', w: 'Region', m: 'Region' }, { g: 'e', w: 'Richtung', m: 'Direction' },
             { g: 'r', w: 'Stadtplan', m: 'City Map' }, { g: 'e', w: 'Tankstelle', m: 'Gas Station' }, { g: 's', w: 'Theater', m: 'Theater' },
             { g: 'r', w: 'Tourismus', m: 'Tourism' }, { g: 'e', w: 'Unterkunft', m: 'Accommodation' }, { g: 'e', w: 'Veranstaltung', m: 'Event' },
             { g: 'e', w: 'Wegbeschreibung', m: 'Directions' },
-            { g: 's', w: 'Abendessen', m: 'Dinner' }, { g: 'r', w: 'Alltag', m: 'Daily Life' }, { g: 's', w: 'Arbeitszimmer', m: 'Study Room' },
-            { g: 's', w: 'Fernsehprogramm', m: 'TV Program' }, { g: 'r', w: 'Garten', m: 'Garden' }, { g: 'r', w: 'Kakao', m: 'Cocoa' },
+            { g: 's', w: 'Abendessen', m: 'Dinner' }, { g: 'r', w: 'Alltag', m: 'Daily Life' }, { g: 's', w: 'Arbeitszimmer', m: 'Study' },
+            { g: 's', w: 'Fernsehprogramm', m: 'TV Guide' }, { g: 'r', w: 'Garten', m: 'Garden' }, { g: 'r', w: 'Kakao', m: 'Cocoa' },
             { g: 's', w: 'Loch', m: 'Hole' }, { g: 'r', w: 'Nachmittag', m: 'Afternoon' }, { g: 'e', w: 'Rechnung', m: 'Bill' },
             { g: 'e', w: 'Tätigkeit', m: 'Activity' }, { g: 'r', w: 'Traum', m: 'Dream' }, { g: 'r', w: 'Vormittag', m: 'Morning' },
-            { g: 's', w: 'Abendbrot', m: 'Supper' }, { g: 'r', w: 'Arbeitstag', m: 'Workday' }, { g: 'r', w: 'Arzttermin', m: 'Doctor\'s Appointment' },
-            { g: 'r', w: 'Bauer', m: 'Farmer' }, { g: 'e', w: 'Bäuerin', m: 'Farmer (female)' }, { g: 'e', w: 'Büroarbeit', m: 'Office Work' },
-            { g: 'r', w: 'Feierabend', m: 'End of Work' }, { g: 's', w: 'Feld', m: 'Field' }, { g: 's', w: 'Fernsehen', m: 'TV' },
-            { g: 's', w: 'Gemüse', m: 'Vegetables' }, { g: 's', w: 'Glück', m: 'Luck / Happiness' }, { g: 'e', w: 'Hausarbeit', m: 'Housework' },
-            { g: 's', w: 'Huhn', m: 'Chicken' }, { g: 'r', w: 'Hühnerstall', m: 'Chicken Coop' }, { g: 's', w: 'Interview', m: 'Interview' },
-            { g: 'r', w: 'Joghurt', m: 'Yogurt' }, { g: 'e', w: 'Journalistin', m: 'Journalist (female)' }, { g: 'e', w: 'Kuh', m: 'Cow' },
-            { g: 'r', w: 'Landwirt', m: 'Farmer' }, { g: 'e', w: 'Lieblingsmannschaft', m: 'Favorite Team' }, { g: 'r', w: 'Mai', m: 'May' },
+            { g: 's', w: 'Abendbrot', m: 'Supper' }, { g: 'r', w: 'Arbeitstag', m: 'Workday' }, { g: 'r', w: 'Arzttermin', m: 'Appt' },
+            { g: 'r', w: 'Bauer', m: 'Farmer' }, { g: 'e', w: 'Bäuerin', m: 'Farmer (f)' }, { g: 'e', w: 'Büroarbeit', m: 'Office Work' },
+            { g: 'r', w: 'Feierabend', m: 'End of work' }, { g: 's', w: 'Feld', m: 'Field' }, { g: 's', w: 'Fernsehen', m: 'TV' },
+            { g: 's', w: 'Gemüse', m: 'Vegetables' }, { g: 's', w: 'Glück', m: 'Luck' }, { g: 'e', w: 'Hausarbeit', m: 'Housework' },
+            { g: 's', w: 'Huhn', m: 'Chicken' }, { g: 'r', w: 'Hühnerstall', m: 'Coop' }, { g: 's', w: 'Interview', m: 'Interview' },
+            { g: 'r', w: 'Joghurt', m: 'Yogurt' }, { g: 'e', w: 'Journalistin', m: 'Journalist' }, { g: 'e', w: 'Kuh', m: 'Cow' },
+            { g: 'r', w: 'Landwirt', m: 'Farmer' }, { g: 'e', w: 'Lieblingsmannschaft', m: 'Fav Team' }, { g: 'r', w: 'Mai', m: 'May' },
             { g: 'e', w: 'Maschine', m: 'Machine' }, { g: 'r', w: 'Mittag', m: 'Noon' }, { g: 's', w: 'Mittagessen', m: 'Lunch' },
             { g: 'e', w: 'Mittagspause', m: 'Lunch Break' }, { g: 'r', w: 'Mittagsschlaf', m: 'Nap' }, { g: 'e', w: 'Mitternacht', m: 'Midnight' },
             { g: 's', w: 'Obst', m: 'Fruit' }, { g: 'e', w: 'Ordnung', m: 'Order' }, { g: 'r', w: 'Rechtsanwalt', m: 'Lawyer' },
             { g: 'e', w: 'Reparatur', m: 'Repair' }, { g: 'r', w: 'Schalter', m: 'Counter' }, { g: 's', w: 'Schwein', m: 'Pig' },
             { g: 'e', w: 'Serie', m: 'Series' }, { g: 'r', w: 'Sessel', m: 'Armchair' }, { g: 'e', w: 'Stallarbeit', m: 'Stable Work' },
             { g: 'e', w: 'Tasse', m: 'Cup' }, { g: 'r', w: 'Urlaub', m: 'Vacation' }, { g: 's', w: 'Viertel', m: 'Quarter' },
-            { g: 'e', w: 'Viertelstunde', m: 'Quarter Hour' }, { g: 'e', w: 'Wäsche', m: 'Laundry' }, { g: 'e', w: 'Woche', m: 'Week' },
+            { g: 'e', w: 'Viertelstunde', m: '15 Mins' }, { g: 'e', w: 'Wäsche', m: 'Laundry' }, { g: 'e', w: 'Woche', m: 'Week' },
             { g: 'r', w: 'April', m: 'April' }, { g: 's', w: 'Auge', m: 'Eye' }, { g: 'r', w: 'Bäcker', m: 'Baker' },
-            { g: 's', w: 'Brötchen', m: 'Bread Roll' }, { g: 'r', w: 'Dezember', m: 'December' }, { g: 'e', w: 'Disco', m: 'Disco' },
-            { g: 's', w: 'Ei', m: 'Egg' }, { g: 'r', w: 'Februar', m: 'February' }, { g: 's', w: 'Flugzeug', m: 'Airplane' },
+            { g: 's', w: 'Brötchen', m: 'Roll' }, { g: 'r', w: 'Dezember', m: 'December' }, { g: 'e', w: 'Disco', m: 'Disco' },
+            { g: 's', w: 'Ei', m: 'Egg' }, { g: 'r', w: 'Februar', m: 'February' }, { g: 's', w: 'Flugzeug', m: 'Plane' },
             { g: 'r', w: 'Gorilla', m: 'Gorilla' }, { g: 'r', w: 'Gott', m: 'God' }, { g: 'r', w: 'Januar', m: 'January' },
             { g: 'r', w: 'Juni', m: 'June' }, { g: 's', w: 'Kamel', m: 'Camel' }, { g: 'r', w: 'Liebling', m: 'Darling' },
             { g: 'r', w: 'März', m: 'March' }, { g: 'r', w: 'November', m: 'November' }, { g: 'r', w: 'Oktober', m: 'October' },
             { g: 'r', w: 'Park', m: 'Park' }, { g: 'r', w: 'Passagier', m: 'Passenger' }, { g: 'e', w: 'Rente', m: 'Pension' },
-            { g: 's', w: 'Salz', m: 'Salt' }, { g: 'r', w: 'September', m: 'September' }, { g: 'e', w: 'Stewardess', m: 'Flight Attendant' },
-            { g: 'r', w: 'Tagesablauf', m: 'Daily Routine' }, { g: 'r', w: 'Typ', m: 'Type / Guy' }, { g: 'e', w: 'Uhrzeit', m: 'Time' },
-            { g: 'r', w: 'Vogel', m: 'Bird' }, { g: 'r', w: 'Wecker', m: 'Alarm Clock' }, { g: 'e', w: 'Wiese', m: 'Meadow' },
+            { g: 's', w: 'Salz', m: 'Salt' }, { g: 'r', w: 'September', m: 'September' }, { g: 'e', w: 'Stewardess', m: 'Stewardess' },
+            { g: 'r', w: 'Tagesablauf', m: 'Routine' }, { g: 'r', w: 'Typ', m: 'Type' }, { g: 'e', w: 'Uhrzeit', m: 'Time' },
+            { g: 'r', w: 'Vogel', m: 'Bird' }, { g: 'r', w: 'Wecker', m: 'Alarm' }, { g: 'e', w: 'Wiese', m: 'Meadow' },
             { g: 's', w: 'Wort', m: 'Word' }, { g: 'e', w: 'Wunde', m: 'Wound' }, { g: 'e', w: 'Wüste', m: 'Desert' },
-            { g: 'e', w: 'Geschichte', m: 'Story' }, { g: 'e', w: 'Reihenfolge', m: 'Order / Sequence' },
+            { g: 'e', w: 'Geschichte', m: 'Story' }, { g: 'e', w: 'Reihenfolge', m: 'Order' },
             { g: 'e', w: 'Bratwurst', m: 'Bratwurst' }, { g: 'e', w: 'Cola', m: 'Cola' }, { g: 'r', w: 'Eistee', m: 'Iced Tea' },
             { g: 'e', w: 'Frikadelle', m: 'Meatball' }, { g: 'e', w: 'Garage', m: 'Garage' }, { g: 's', w: 'Gas', m: 'Gas' },
-            { g: 's', w: 'Geschirr', m: 'Dishes' }, { g: 's', w: 'Hähnchen', m: 'Chicken (Roast)' }, { g: 'r', w: 'Hamburger', m: 'Hamburger' },
+            { g: 's', w: 'Geschirr', m: 'Dishes' }, { g: 's', w: 'Hähnchen', m: 'Chicken' }, { g: 'r', w: 'Hamburger', m: 'Hamburger' },
             { g: 'e', w: 'Haustür', m: 'Front Door' }, { g: 'e', w: 'Limonade', m: 'Lemonade' }, { g: 'e', w: 'Mayonnaise', m: 'Mayonnaise' },
             { g: 'r', w: 'Schluss', m: 'End' }, { g: 'r', w: 'Schnellimbiss', m: 'Snack Bar' }, { g: 's', w: 'Schnitzel', m: 'Schnitzel' },
-            { g: 'e', w: 'Speise', m: 'Dish' }, { g: 'e', w: 'Speisekarte', m: 'Menu' }, { g: 'r', w: 'Strom', m: 'Electricity' },
+            { g: 'e', w: 'Speise', m: 'Dish' }, { g: 'e', w: 'Speisekarte', m: 'Menu' }, { g: 'r', w: 'Strom', m: 'Power' },
             { g: 'e', w: 'Treppe', m: 'Stairs' }, { g: 'e', w: 'Hilfe', m: 'Help' },
-            { g: 'r', w: 'Abflug', m: 'Departure' }, { g: 'r', w: 'Anfang', m: 'Beginning' }, { g: 'e', w: 'Besichtigung', m: 'Sightseeing' },
+            { g: 'r', w: 'Abflug', m: 'Departure' }, { g: 'r', w: 'Anfang', m: 'Start' }, { g: 'e', w: 'Besichtigung', m: 'Sightseeing' },
             { g: 'e', w: 'Besprechung', m: 'Meeting' }, { g: 'r', w: 'Blick', m: 'View' }, { g: 's', w: 'Dorf', m: 'Village' },
             { g: 'r', w: 'Erfolg', m: 'Success' }, { g: 'e', w: 'Fahrradtour', m: 'Bike Tour' }, { g: 'r', w: 'Feiertag', m: 'Holiday' },
             { g: 'r', w: 'Fernsehturm', m: 'TV Tower' }, { g: 's', w: 'Frühjahr', m: 'Spring' }, { g: 'r', w: 'Frühling', m: 'Spring' },
-            { g: 'e', w: 'Führung', m: 'Guided Tour' }, { g: 'e', w: 'Gartenparty', m: 'Garden Party' }, { g: 's', w: 'Gewitter', m: 'Thunderstorm' },
+            { g: 'e', w: 'Führung', m: 'Tour' }, { g: 'e', w: 'Gartenparty', m: 'Garden Party' }, { g: 's', w: 'Gewitter', m: 'Storm' },
             { g: 'r', w: 'Grad', m: 'Degree' }, { g: 'r', w: 'Haushalt', m: 'Household' }, { g: 'r', w: 'Herbst', m: 'Autumn' },
             { g: 'r', w: 'Himmel', m: 'Sky' }, { g: 'e', w: 'Konferenz', m: 'Conference' }, { g: 'r', w: 'Kunde', m: 'Customer' },
-            { g: 's', w: 'Lebensjahr', m: 'Year of Life' }, { g: 'r', w: 'Maifeiertag', m: 'May Day' }, { g: 's', w: 'Meer', m: 'Sea' },
+            { g: 's', w: 'Lebensjahr', m: 'Year' }, { g: 'r', w: 'Maifeiertag', m: 'May Day' }, { g: 's', w: 'Meer', m: 'Sea' },
             { g: 'r', w: 'Norden', m: 'North' }, { g: 'e', w: 'Nordsee', m: 'North Sea' }, { g: 'e', w: 'Oma', m: 'Grandma' },
             { g: 'r', w: 'Osten', m: 'East' }, { g: 'e', w: 'Ostsee', m: 'Baltic Sea' }, { g: 'r', w: 'Pass', m: 'Passport' },
-            { g: 's', w: 'Regierungsgebäude', m: 'Government Building' }, { g: 'r', w: 'Reichstag', m: 'Reichstag' }, { g: 'e', w: 'Sonne', m: 'Sun' },
+            { g: 's', w: 'Regierungsgebäude', m: 'Gov Building' }, { g: 'r', w: 'Reichstag', m: 'Reichstag' }, { g: 'e', w: 'Sonne', m: 'Sun' },
             { g: 'r', w: 'Spaziergang', m: 'Walk' }, { g: 'r', w: 'Süden', m: 'South' }, { g: 's', w: 'Symbol', m: 'Symbol' },
-            { g: 'e', w: 'Temperatur', m: 'Temperature' }, { g: 'r', w: 'Terminkalender', m: 'Appointment Calendar' },
+            { g: 'e', w: 'Temperatur', m: 'Temperature' }, { g: 'r', w: 'Terminkalender', m: 'Calendar' },
             { g: 'r', w: 'Westen', m: 'West' }, { g: 'e', w: 'Wetterkarte', m: 'Weather Map' }, { g: 'r', w: 'Wind', m: 'Wind' }
         ];
 
@@ -447,23 +579,19 @@
         let vocabulary = [];
         let availableIndices = [];
         let currentWordObj = null;
+        let lastWordObj = null; // Stores exactly one previous word
 
-        // Keys for LocalStorage
-        const LS_KEY_VOCAB = "lagune_vocabulary_v1";
-        const LS_KEY_INDICES = "lagune_available_indices_v1";
+        const LS_KEY_VOCAB = "lagune_vocab_v1";
+        const LS_KEY_INDICES = "lagune_indices_v1";
 
-        // --- 2. INITIALIZATION ---
+        // --- INITIALIZATION ---
         function init() {
             loadData();
-            if (availableIndices.length === 0) {
-                // If the user has seen everything, reset or alert? 
-                // For now, let's just reset indices so they can loop again.
-                resetIndices();
-            }
+            updateProgressText();
             nextWord();
         }
 
-        // --- 3. DATA MANAGEMENT ---
+        // --- STORAGE & DATA ---
         function loadData() {
             const storedVocab = localStorage.getItem(LS_KEY_VOCAB);
             const storedIndices = localStorage.getItem(LS_KEY_INDICES);
@@ -472,7 +600,7 @@
                 vocabulary = JSON.parse(storedVocab);
             } else {
                 vocabulary = [...defaultVocabulary];
-                saveVocabulary(); // Save default to local storage
+                saveVocabulary();
             }
 
             if (storedIndices) {
@@ -496,14 +624,6 @@
             saveIndices();
         }
 
-        function resetProgress() {
-            if(confirm("Are you sure? Doing this will forget which words you've seen so far.")) {
-                resetIndices();
-                nextWord();
-                alert("Progress reset!");
-            }
-        }
-
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -511,7 +631,11 @@
             }
         }
 
-        // --- 4. INTERACTION ---
+        function updateProgressText() {
+            document.getElementById('progress-text').textContent = `Words left in cycle: ${availableIndices.length}`;
+        }
+
+        // --- FLASHCARD LOGIC ---
         function flipCard() {
             document.getElementById('flashcard').classList.toggle('is-flipped');
         }
@@ -519,20 +643,48 @@
         function nextWord(event) {
             if (event) event.stopPropagation();
 
-            if (availableIndices.length === 0) {
-                resetIndices(); // Start over if finished
+            // Save history (only the immediate last one)
+            if (currentWordObj) {
+                lastWordObj = currentWordObj;
+                document.getElementById('btn-undo').disabled = false;
+                document.getElementById('btn-undo').style.opacity = "1";
             }
 
-            const wordIndex = availableIndices.pop();
-            saveIndices(); // Save progress immediately
-            
-            currentWordObj = vocabulary[wordIndex];
+            // Logic to get new word
+            if (vocabulary.length === 0) return;
+            if (availableIndices.length === 0) resetIndices();
 
-            // Reset card flip
+            const wordIndex = availableIndices.pop();
+            saveIndices();
+            updateProgressText();
+
+            // Handle potential sync error if word was deleted
+            if (!vocabulary[wordIndex]) {
+                nextWord(); 
+                return;
+            }
+
+            currentWordObj = vocabulary[wordIndex];
+            renderCard(currentWordObj);
+        }
+
+        function undoLastWord() {
+            if (!lastWordObj) return;
+
+            // Render previous word
+            currentWordObj = lastWordObj;
+            renderCard(currentWordObj);
+
+            // Disable button (one-time use only)
+            lastWordObj = null;
+            document.getElementById('btn-undo').disabled = true;
+            document.getElementById('btn-undo').style.opacity = "0.5";
+        }
+
+        function renderCard(wordObj) {
             const card = document.getElementById('flashcard');
             card.classList.remove('is-flipped');
 
-            // Set Content with delay for animation
             setTimeout(() => {
                 const articleSpan = document.getElementById('article');
                 const nounSpan = document.getElementById('noun');
@@ -542,21 +694,17 @@
                 let article = "";
                 let className = "";
                 
-                if (currentWordObj.g === 'r') { article = "der"; className = "masculine"; }
-                else if (currentWordObj.g === 'e') { article = "die"; className = "feminine"; }
-                else if (currentWordObj.g === 's') { article = "das"; className = "neutral"; }
+                if (wordObj.g === 'r') { article = "der"; className = "masculine"; }
+                else if (wordObj.g === 'e') { article = "die"; className = "feminine"; }
+                else if (wordObj.g === 's') { article = "das"; className = "neutral"; }
 
                 articleSpan.textContent = article;
-                nounSpan.textContent = currentWordObj.w;
-                meaningDiv.textContent = currentWordObj.m;
+                nounSpan.textContent = wordObj.w;
+                meaningDiv.textContent = wordObj.m;
+                
+                // Remove old classes and add new
                 wordContainer.className = "word-text " + className;
-
-                // Update Progress Text
-                const total = vocabulary.length;
-                const seen = total - availableIndices.length;
-                document.getElementById('progress-text').textContent = `Words seen: ${seen} / ${total}`;
-
-            }, 200);
+            }, 200); // Wait for card to flip back to front
         }
 
         function speakWord(event) {
@@ -574,53 +722,123 @@
             window.speechSynthesis.speak(utterance);
         }
 
-        // --- 5. ADD NEW WORDS ---
-        function toggleAddForm() {
-            const form = document.getElementById('add-form-container');
-            form.style.display = (form.style.display === 'block') ? 'none' : 'block';
+        // --- MANAGER LOGIC ---
+        function openManager() {
+            document.getElementById('manager-modal').style.display = 'flex';
+            renderList();
         }
 
-        function saveNewWord() {
+        function closeManager() {
+            document.getElementById('manager-modal').style.display = 'none';
+            // Reset edit state
+            document.getElementById('edit-index').value = "-1";
+            document.getElementById('btn-add').style.display = "block";
+            document.getElementById('btn-update').style.display = "none";
+            document.getElementById('new-word').value = "";
+            document.getElementById('new-meaning').value = "";
+        }
+
+        function renderList() {
+            const container = document.getElementById('word-list-container');
+            container.innerHTML = '';
+
+            vocabulary.forEach((item, index) => {
+                const li = document.createElement('li');
+                li.className = 'list-item';
+                
+                let badgeClass = '';
+                if(item.g === 'r') badgeClass = 'bg-r';
+                if(item.g === 'e') badgeClass = 'bg-e';
+                if(item.g === 's') badgeClass = 'bg-s';
+
+                li.innerHTML = `
+                    <div class="item-content">
+                        <div class="item-header"><span class="badge ${badgeClass}"></span>${item.w}</div>
+                        <div class="item-sub">${item.m}</div>
+                    </div>
+                    <div class="item-actions">
+                        <button class="action-btn btn-edit" onclick="startEdit(${index})">✎</button>
+                        <button class="action-btn btn-delete" onclick="deleteWord(${index})">🗑</button>
+                    </div>
+                `;
+                container.appendChild(li);
+            });
+        }
+
+        function addNewWord() {
             const gender = document.getElementById('new-gender').value;
             const word = document.getElementById('new-word').value.trim();
             const meaning = document.getElementById('new-meaning').value.trim();
 
-            if (!word || !meaning) {
-                alert("Please fill in both the word and the meaning.");
-                return;
-            }
+            if (!word || !meaning) { alert("Please fill in fields"); return; }
 
-            // Create object
-            const newObj = { g: gender, w: word, m: meaning };
-
-            // Add to vocabulary
-            vocabulary.push(newObj);
+            vocabulary.unshift({ g: gender, w: word, m: meaning });
             saveVocabulary();
-
-            // Make it available immediately
-            availableIndices.push(vocabulary.length - 1);
-            shuffleArray(availableIndices); // Reshuffle to mix it in
-            saveIndices();
-
-            // UI Feedback
+            resetIndices(); // Reshuffle to include new word
+            
             document.getElementById('new-word').value = "";
             document.getElementById('new-meaning').value = "";
-            toggleAddForm();
-            showToast();
+            renderList();
+            updateProgressText();
+        }
+
+        function startEdit(index) {
+            const item = vocabulary[index];
+            document.getElementById('edit-index').value = index;
+            document.getElementById('new-gender').value = item.g;
+            document.getElementById('new-word').value = item.w;
+            document.getElementById('new-meaning').value = item.m;
+
+            document.getElementById('btn-add').style.display = "none";
+            document.getElementById('btn-update').style.display = "block";
+            document.querySelector('.manager-form').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function updateWord() {
+            const index = document.getElementById('edit-index').value;
+            if (index === "-1") return;
+
+            const gender = document.getElementById('new-gender').value;
+            const word = document.getElementById('new-word').value.trim();
+            const meaning = document.getElementById('new-meaning').value.trim();
+
+            vocabulary[index] = { g: gender, w: word, m: meaning };
+            saveVocabulary();
             
-            // Update counts
-            const total = vocabulary.length;
-            const seen = total - availableIndices.length;
-            document.getElementById('progress-text').textContent = `Words seen: ${seen} / ${total}`;
+            // UI Reset
+            document.getElementById('edit-index').value = "-1";
+            document.getElementById('btn-add').style.display = "block";
+            document.getElementById('btn-update').style.display = "none";
+            document.getElementById('new-word').value = "";
+            document.getElementById('new-meaning').value = "";
+
+            renderList();
+            
+            // If we edited the current card, refresh it
+            if (currentWordObj === vocabulary[index]) {
+                renderCard(currentWordObj);
+            }
         }
 
-        function showToast() {
-            const x = document.getElementById("toast");
-            x.className = "show";
-            setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+        function deleteWord(index) {
+            if(!confirm(`Delete "${vocabulary[index].w}"?`)) return;
+            vocabulary.splice(index, 1);
+            saveVocabulary();
+            resetIndices(); // Reset needed because indices shift
+            renderList();
+            updateProgressText();
         }
 
-        // Run
+        function resetProgress() {
+            if(confirm("Reset all progress? (Custom words will stay)")) {
+                resetIndices();
+                updateProgressText();
+                nextWord();
+                alert("Progress reset!");
+            }
+        }
+
+        // Start
         init();
 
     </script>
