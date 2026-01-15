@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lagune 1 Vocabulary Learner</title>
+    <title>Lagune 1 Vocabulary Flashcards</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -94,40 +94,99 @@
         }
         button:active { transform: scale(0.98); }
 
-        .btn-main { background-color: #00796b; } /* Teal */
+        .btn-main { background-color: #00796b; } 
         .btn-main:hover { background-color: #004d40; }
         
-        .btn-speak { background-color: #e65100; display: flex; align-items: center; gap: 5px;} /* Orange */
+        .btn-speak { background-color: #e65100; display: flex; align-items: center; gap: 5px;}
         .btn-speak:hover { background-color: #bf360c; }
 
-        .btn-add { background-color: #1976d2; } /* Blue */
-        .btn-add:hover { background-color: #0d47a1; }
+        .btn-manage { background-color: #1976d2; }
+        .btn-manage:hover { background-color: #0d47a1; }
 
-        .btn-reset { background-color: #555; font-size: 0.8em; padding: 8px 15px; }
+        .btn-reset { background-color: #555; font-size: 0.8em; padding: 8px 15px; margin-top: 10px;}
         .btn-reset:hover { background-color: #333; }
 
         .progress { color: #666; font-size: 0.9em; margin-bottom: 10px;}
         .hint { font-size: 0.8em; color: #aaa; margin-top: 15px; }
 
-        /* --- Add Word Modal Form --- */
-        #add-form-container {
+        /* --- MANAGER MODAL STYLES (NEW) --- */
+        .modal-overlay {
             display: none; /* Hidden by default */
-            background: white;
-            border: 2px solid #ddd;
-            padding: 20px;
-            border-radius: 10px;
-            width: 300px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
+            position: fixed;
+            z-index: 1000;
+            left: 0; top: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
         }
 
-        .form-group { margin-bottom: 15px; text-align: left; }
-        label { display: block; margin-bottom: 5px; color: #333; font-weight: bold; }
-        input, select { 
-            width: 100%; padding: 8px; box-sizing: border-box; 
-            border: 1px solid #ccc; border-radius: 4px; 
+        .modal-content {
+            background-color: #fff;
+            width: 90%;
+            max-width: 500px;
+            height: 80vh;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
-        .form-buttons { display: flex; gap: 10px; justify-content: flex-end; }
+
+        .modal-header {
+            padding: 15px;
+            background-color: #f1f1f1;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-header h2 { margin: 0; font-size: 1.2em; color: #333; }
+        .close-btn { background: none; border: none; font-size: 1.5em; color: #333; cursor: pointer; padding: 0; box-shadow: none; }
+
+        .modal-body {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* Form inside modal */
+        .add-form {
+            background: #fafafa;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #eee;
+        }
+        .form-row { display: flex; gap: 10px; margin-bottom: 10px; }
+        input, select { 
+            padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;
+        }
+        .input-word { flex: 2; }
+        .input-meaning { width: 100%; }
+        
+        /* List inside modal */
+        .word-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .list-item:hover { background-color: #f9f9f9; }
+        .item-text { flex: 1; }
+        .item-actions { display: flex; gap: 5px; }
+        
+        .btn-sm { padding: 5px 10px; font-size: 0.8em; }
+        .btn-edit { background-color: #f0ad4e; color: white; }
+        .btn-delete { background-color: #d9534f; color: white; }
 
         /* Notification Toast */
         #toast {
@@ -139,7 +198,7 @@
             border-radius: 4px;
             padding: 16px;
             position: fixed;
-            z-index: 1;
+            z-index: 1001;
             bottom: 30px;
             font-size: 17px;
         }
@@ -152,7 +211,7 @@
 </head>
 <body>
 
-    <h1>Lagune 1 Flashcards<br><small style="font-size:0.6em; color:#777;">Deutsch Lernwortschatz</small></h1>
+    <h1>Lagune 1 Flashcards</h1>
 
     <div class="progress" id="progress-text">Loading...</div>
 
@@ -174,40 +233,47 @@
     <div class="controls">
         <button class="btn-speak" onclick="speakWord(event)">🔊 Hören</button>
         <button class="btn-main" onclick="nextWord(event)">Next Word</button>
-        <button class="btn-add" onclick="toggleAddForm()">+ Add New</button>
+        <button class="btn-manage" onclick="openManager()">⚙ Manage Words</button>
     </div>
 
     <button class="btn-reset" onclick="resetProgress()">Reset Progress (Start Over)</button>
 
-    <div id="add-form-container">
-        <h3>Add New Word</h3>
-        <div class="form-group">
-            <label>Gender:</label>
-            <select id="new-gender">
-                <option value="r">Der (Masculine)</option>
-                <option value="e">Die (Feminine)</option>
-                <option value="s">Das (Neutral)</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label>German Noun:</label>
-            <input type="text" id="new-word" placeholder="e.g. Tisch">
-        </div>
-        <div class="form-group">
-            <label>English Meaning:</label>
-            <input type="text" id="new-meaning" placeholder="e.g. Table">
-        </div>
-        <div class="form-buttons">
-            <button class="btn-reset" style="background:#ccc; color:#333" onclick="toggleAddForm()">Cancel</button>
-            <button class="btn-main" onclick="saveNewWord()">Save Word</button>
+    <div id="manager-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Word List</h2>
+                <button class="close-btn" onclick="closeManager()">×</button>
+            </div>
+            <div class="modal-body">
+                
+                <div class="add-form">
+                    <input type="hidden" id="edit-index" value="-1">
+                    <div class="form-row">
+                        <select id="new-gender">
+                            <option value="r">Der</option>
+                            <option value="e">Die</option>
+                            <option value="s">Das</option>
+                        </select>
+                        <input type="text" id="new-word" class="input-word" placeholder="German Word">
+                    </div>
+                    <div class="form-row">
+                        <input type="text" id="new-meaning" class="input-meaning" placeholder="English Meaning">
+                    </div>
+                    <button class="btn-main" style="width:100%" id="save-btn" onclick="saveWord()">+ Add Word</button>
+                </div>
+
+                <hr style="width:100%; border:0; border-top:1px solid #eee; margin: 10px 0;">
+
+                <ul class="word-list" id="word-list-container">
+                    </ul>
+            </div>
         </div>
     </div>
 
-    <div id="toast">Word Added!</div>
+    <div id="toast">Action Saved!</div>
 
     <script>
         // --- 1. DEFAULT DATA (Units 1-30) ---
-        // This is used if the user has no saved data in their browser.
         const defaultVocabulary = [
             { g: 'r', w: 'Abfall', m: 'Waste / Trash' }, { g: 's', w: 'Baby', m: 'Baby' }, { g: 'e', w: 'Bank', m: 'Bench / Bank' },
             { g: 'e', w: 'Blume', m: 'Flower' }, { g: 'r', w: 'Bus', m: 'Bus' }, { g: 'r', w: 'Film', m: 'Film / Movie' },
@@ -455,10 +521,9 @@
         // --- 2. INITIALIZATION ---
         function init() {
             loadData();
+            // If first run or empty
             if (availableIndices.length === 0) {
-                // If the user has seen everything, reset or alert? 
-                // For now, let's just reset indices so they can loop again.
-                resetIndices();
+                 resetIndices();
             }
             nextWord();
         }
@@ -497,7 +562,7 @@
         }
 
         function resetProgress() {
-            if(confirm("Are you sure? Doing this will forget which words you've seen so far.")) {
+            if(confirm("Are you sure? This will forget which words you've seen, but keeps your custom words.")) {
                 resetIndices();
                 nextWord();
                 alert("Progress reset!");
@@ -519,6 +584,11 @@
         function nextWord(event) {
             if (event) event.stopPropagation();
 
+            if (vocabulary.length === 0) {
+                alert("No words available! Please add some.");
+                return;
+            }
+
             if (availableIndices.length === 0) {
                 resetIndices(); // Start over if finished
             }
@@ -526,6 +596,12 @@
             const wordIndex = availableIndices.pop();
             saveIndices(); // Save progress immediately
             
+            // Check if index still exists (in case user deleted the word)
+            if (!vocabulary[wordIndex]) {
+                 nextWord(); // skip if invalid
+                 return;
+            }
+
             currentWordObj = vocabulary[wordIndex];
 
             // Reset card flip
@@ -574,48 +650,127 @@
             window.speechSynthesis.speak(utterance);
         }
 
-        // --- 5. ADD NEW WORDS ---
-        function toggleAddForm() {
-            const form = document.getElementById('add-form-container');
-            form.style.display = (form.style.display === 'block') ? 'none' : 'block';
+        // --- 5. MANAGER FUNCTIONS (NEW) ---
+
+        function openManager() {
+            renderList();
+            document.getElementById('manager-modal').style.display = 'flex';
         }
 
-        function saveNewWord() {
+        function closeManager() {
+            document.getElementById('manager-modal').style.display = 'none';
+            // Clear inputs and reset edit state
+            document.getElementById('new-word').value = '';
+            document.getElementById('new-meaning').value = '';
+            document.getElementById('edit-index').value = '-1';
+            document.getElementById('save-btn').textContent = '+ Add Word';
+        }
+
+        function renderList() {
+            const listContainer = document.getElementById('word-list-container');
+            listContainer.innerHTML = ''; // Clear current list
+
+            vocabulary.forEach((item, index) => {
+                const li = document.createElement('li');
+                li.className = 'list-item';
+                
+                // Gender Label
+                let genderLabel = '';
+                if(item.g === 'r') genderLabel = '(der)';
+                if(item.g === 'e') genderLabel = '(die)';
+                if(item.g === 's') genderLabel = '(das)';
+
+                li.innerHTML = `
+                    <div class="item-text">
+                        <strong>${item.w}</strong> <small>${genderLabel}</small><br>
+                        <span style="color:#666">${item.m}</span>
+                    </div>
+                    <div class="item-actions">
+                        <button class="btn-sm btn-edit" onclick="editWord(${index})">Edit</button>
+                        <button class="btn-sm btn-delete" onclick="deleteWord(${index})">Del</button>
+                    </div>
+                `;
+                listContainer.appendChild(li);
+            });
+        }
+
+        function saveWord() {
             const gender = document.getElementById('new-gender').value;
             const word = document.getElementById('new-word').value.trim();
             const meaning = document.getElementById('new-meaning').value.trim();
+            const editIndex = parseInt(document.getElementById('edit-index').value);
 
             if (!word || !meaning) {
                 alert("Please fill in both the word and the meaning.");
                 return;
             }
 
-            // Create object
             const newObj = { g: gender, w: word, m: meaning };
 
-            // Add to vocabulary
-            vocabulary.push(newObj);
+            if (editIndex > -1) {
+                // UPDATE EXISTING
+                vocabulary[editIndex] = newObj;
+                showToast("Word Updated!");
+            } else {
+                // ADD NEW
+                vocabulary.push(newObj);
+                // Add to available indices so it can be seen
+                availableIndices.push(vocabulary.length - 1);
+                shuffleArray(availableIndices);
+                saveIndices();
+                showToast("Word Added!");
+            }
+
             saveVocabulary();
-
-            // Make it available immediately
-            availableIndices.push(vocabulary.length - 1);
-            shuffleArray(availableIndices); // Reshuffle to mix it in
-            saveIndices();
-
-            // UI Feedback
-            document.getElementById('new-word').value = "";
-            document.getElementById('new-meaning').value = "";
-            toggleAddForm();
-            showToast();
+            renderList(); // Refresh list to show changes
             
-            // Update counts
+            // Clear form
+            document.getElementById('new-word').value = '';
+            document.getElementById('new-meaning').value = '';
+            document.getElementById('edit-index').value = '-1';
+            document.getElementById('save-btn').textContent = '+ Add Word';
+
+            // Update stats
             const total = vocabulary.length;
             const seen = total - availableIndices.length;
             document.getElementById('progress-text').textContent = `Words seen: ${seen} / ${total}`;
         }
 
-        function showToast() {
+        function editWord(index) {
+            const item = vocabulary[index];
+            document.getElementById('new-gender').value = item.g;
+            document.getElementById('new-word').value = item.w;
+            document.getElementById('new-meaning').value = item.m;
+            document.getElementById('edit-index').value = index;
+            document.getElementById('save-btn').textContent = '💾 Update Word';
+            
+            // Scroll to top of modal form
+            document.querySelector('.modal-body').scrollTop = 0;
+        }
+
+        function deleteWord(index) {
+            if(!confirm(`Delete "${vocabulary[index].w}"?`)) return;
+
+            vocabulary.splice(index, 1);
+            saveVocabulary();
+            
+            // Because removing an item shifts indices, existing availableIndices might point to wrong items.
+            // Simplest safe approach: Reset progress indices to match new array state.
+            // Or filter out invalid indices, but reshuffling is safer for consistency.
+            resetIndices(); 
+            
+            renderList();
+            showToast("Word Deleted");
+
+            // Update stats
+            const total = vocabulary.length;
+            const seen = total - availableIndices.length;
+            document.getElementById('progress-text').textContent = `Words seen: ${seen} / ${total}`;
+        }
+
+        function showToast(msg) {
             const x = document.getElementById("toast");
+            if(msg) x.textContent = msg;
             x.className = "show";
             setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
         }
