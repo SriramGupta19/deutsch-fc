@@ -3,21 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lagune 1 Vocabulary Master</title>
+    <title>Lagune 1 Vocabulary Learner</title>
     <style>
-        :root {
-            --primary: #00796b;
-            --primary-dark: #004d40;
-            --accent: #e65100;
-            --bg: #f4f4f9;
-            --text: #333;
-            --danger: #d32f2f;
-        }
-
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
+            background-color: #f4f4f9;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -26,8 +16,11 @@
             padding: 20px;
         }
 
-        h1 { margin-bottom: 5px; text-align: center; }
-        .subtitle { font-size: 0.9em; color: #777; margin-bottom: 20px; }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+        }
 
         /* --- Card Styles --- */
         .card-container {
@@ -35,7 +28,7 @@
             width: 320px;
             height: 220px;
             cursor: pointer;
-            margin-bottom: 30px;
+            margin: 20px 0;
         }
 
         .card {
@@ -44,12 +37,14 @@
             position: relative;
             transform-style: preserve-3d;
             transition: transform 0.6s;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
             border-radius: 15px;
             background-color: white;
         }
 
-        .card.is-flipped { transform: rotateY(180deg); }
+        .card.is-flipped {
+            transform: rotateY(180deg);
+        }
 
         .card-face {
             position: absolute;
@@ -66,227 +61,153 @@
             text-align: center;
         }
 
-        .card-front { background: #fff; border: 1px solid #e0e0e0; }
-        .card-back { background: #fcfcfc; transform: rotateY(180deg); border: 1px solid #e0e0e0; }
+        .card-front { background-color: #fff; border: 2px solid #ddd; }
+        .card-back { background-color: #f9f9f9; transform: rotateY(180deg); border: 2px solid #ddd; }
 
-        .word-text { font-size: 2.2em; font-weight: bold; margin-bottom: 10px; }
-        .gender-article { font-size: 0.5em; vertical-align: middle; margin-right: 5px; color: #888; font-weight: normal; }
-        .meaning-text { font-size: 1.5em; color: #555; line-height: 1.3; }
-        .hint { font-size: 0.8em; color: #aaa; margin-top: 15px; }
+        .word-text { font-size: 2em; font-weight: bold; margin-bottom: 10px; }
+        .gender-article { font-size: 0.8em; margin-right: 8px; font-weight: normal; }
+        .meaning-text { font-size: 1.4em; color: #555; line-height: 1.3; }
 
-        /* Colors */
-        .masculine { color: #d32f2f; }
-        .feminine { color: #1976d2; }
-        .neutral { color: #000000; }
+        /* Color Coding */
+        .masculine { color: #d32f2f; } /* Red */
+        .feminine { color: #1976d2; } /* Blue */
+        .neutral { color: #000000; }  /* Black */
 
-        /* --- Main Controls --- */
-        .main-controls {
+        /* --- Controls --- */
+        .controls {
             display: flex;
-            gap: 15px;
-            margin-bottom: 30px;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 20px;
         }
 
         button {
-            padding: 12px 24px;
+            padding: 10px 20px;
             font-size: 1em;
             border: none;
-            border-radius: 50px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: background 0.2s, transform 0.1s;
             color: white;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
-        button:active { transform: scale(0.95); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        button:active { transform: scale(0.98); }
 
-        .btn-next { background-color: var(--primary); font-weight: bold; padding: 12px 30px; }
-        .btn-next:hover { background-color: var(--primary-dark); }
+        .btn-main { background-color: #00796b; } /* Teal */
+        .btn-main:hover { background-color: #004d40; }
         
-        .btn-speak { background-color: var(--accent); }
+        .btn-speak { background-color: #e65100; display: flex; align-items: center; gap: 5px;} /* Orange */
         .btn-speak:hover { background-color: #bf360c; }
 
-        /* --- Secondary Actions --- */
-        .secondary-actions {
-            display: flex;
-            gap: 20px;
-            font-size: 0.9em;
-        }
+        .btn-add { background-color: #1976d2; } /* Blue */
+        .btn-add:hover { background-color: #0d47a1; }
 
-        .text-btn {
-            background: none;
-            border: none;
-            color: #666;
-            box-shadow: none;
-            padding: 5px;
-            border-radius: 4px;
-            text-decoration: underline;
-        }
-        .text-btn:hover { color: var(--primary); background: #e0f2f1; }
+        .btn-reset { background-color: #555; font-size: 0.8em; padding: 8px 15px; }
+        .btn-reset:hover { background-color: #333; }
 
-        .progress { color: #888; font-size: 0.9em; margin-top: 20px; }
+        .progress { color: #666; font-size: 0.9em; margin-bottom: 10px;}
+        .hint { font-size: 0.8em; color: #aaa; margin-top: 15px; }
 
-        /* --- Manager Modal (The New Feature) --- */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-content {
+        /* --- Add Word Modal Form --- */
+        #add-form-container {
+            display: none; /* Hidden by default */
             background: white;
-            width: 90%;
-            max-width: 500px;
-            height: 80vh;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
+            border: 2px solid #ddd;
+            padding: 20px;
+            border-radius: 10px;
+            width: 300px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
         }
 
-        .modal-header {
-            padding: 15px 20px;
-            background: var(--primary);
-            color: white;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .form-group { margin-bottom: 15px; text-align: left; }
+        label { display: block; margin-bottom: 5px; color: #333; font-weight: bold; }
+        input, select { 
+            width: 100%; padding: 8px; box-sizing: border-box; 
+            border: 1px solid #ccc; border-radius: 4px; 
         }
-        .modal-header h2 { margin: 0; font-size: 1.2em; }
-        .close-btn { background: none; border: none; font-size: 1.5em; color: white; cursor: pointer; padding: 0; box-shadow: none; }
+        .form-buttons { display: flex; gap: 10px; justify-content: flex-end; }
 
-        /* Add Form inside Modal */
-        .add-section {
-            padding: 15px;
-            background: #f5f5f5;
-            border-bottom: 1px solid #ddd;
-        }
-        .add-row { display: flex; gap: 8px; margin-bottom: 8px; }
-        input, select { padding: 8px; border: 1px solid #ccc; border-radius: 6px; }
-        #new-word { flex: 2; }
-        #new-meaning { flex: 2; }
-        #new-gender { flex: 1; }
-        .btn-add-confirm { background: var(--primary); width: 100%; justify-content: center; padding: 8px; border-radius: 6px; }
-
-        /* List Area */
-        .word-list {
-            flex: 1;
-            overflow-y: auto;
-            padding: 0;
-            margin: 0;
-            list-style: none;
-        }
-
-        .list-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 20px;
-            border-bottom: 1px solid #eee;
-        }
-        .list-item:hover { background: #fafafa; }
-        
-        .item-info { display: flex; flex-direction: column; }
-        .item-german { font-weight: bold; color: #333; }
-        .item-english { font-size: 0.85em; color: #666; }
-        .item-gender { font-size: 0.7em; padding: 2px 5px; border-radius: 3px; margin-right: 5px; color: white;}
-        .g-r { background: #d32f2f; }
-        .g-e { background: #1976d2; }
-        .g-s { background: #333; }
-
-        .btn-delete {
-            background: none;
-            color: #ccc;
-            box-shadow: none;
-            padding: 5px;
-            font-size: 1.2em;
-        }
-        .btn-delete:hover { color: var(--danger); transform: scale(1.1); }
-
-        .modal-footer {
-            padding: 10px;
-            border-top: 1px solid #ddd;
+        /* Notification Toast */
+        #toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #333;
+            color: #fff;
             text-align: center;
+            border-radius: 4px;
+            padding: 16px;
+            position: fixed;
+            z-index: 1;
+            bottom: 30px;
+            font-size: 17px;
         }
-        .btn-reset-data { background: #666; font-size: 0.8em; padding: 8px 15px; }
+        #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
+
+        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
 
     </style>
 </head>
 <body>
 
-    <h1>Vocabulary Master</h1>
-    <div class="subtitle">Lagune 1 • Units 1-30</div>
+    <h1>Lagune 1 Flashcards<br><small style="font-size:0.6em; color:#777;">Deutsch Lernwortschatz</small></h1>
+
+    <div class="progress" id="progress-text">Loading...</div>
 
     <div class="card-container" onclick="flipCard()">
         <div class="card" id="flashcard">
             <div class="card-face card-front">
                 <div id="german-word" class="word-text">
                     <span id="article" class="gender-article"></span>
-                    <span id="noun">Loading...</span>
+                    <span id="noun">Willkommen</span>
                 </div>
                 <div class="hint">(Tap to flip)</div>
             </div>
             <div class="card-face card-back">
-                <div id="english-meaning" class="meaning-text">...</div>
+                <div id="english-meaning" class="meaning-text">Welcome</div>
             </div>
         </div>
     </div>
 
-    <div class="main-controls">
-        <button class="btn-speak" onclick="speakWord(event)">
-            🔊 Speak
-        </button>
-        <button class="btn-next" onclick="nextWord(event)">
-            Next Word ➡
-        </button>
+    <div class="controls">
+        <button class="btn-speak" onclick="speakWord(event)">🔊 Hören</button>
+        <button class="btn-main" onclick="nextWord(event)">Next Word</button>
+        <button class="btn-add" onclick="toggleAddForm()">+ Add New</button>
     </div>
 
-    <div class="secondary-actions">
-        <button class="text-btn" onclick="openManager()">⚙ Manage List / Add Words</button>
-    </div>
+    <button class="btn-reset" onclick="resetProgress()">Reset Progress (Start Over)</button>
 
-    <div class="progress" id="progress-text">Words remaining: 0</div>
-
-    <div id="manager-modal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Vocabulary List</h2>
-                <button class="close-btn" onclick="closeManager()">×</button>
-            </div>
-            
-            <div class="add-section">
-                <div class="add-row">
-                    <select id="new-gender">
-                        <option value="r">Der</option>
-                        <option value="e">Die</option>
-                        <option value="s">Das</option>
-                    </select>
-                    <input type="text" id="new-word" placeholder="German Word">
-                </div>
-                <div class="add-row">
-                    <input type="text" id="new-meaning" placeholder="English Meaning">
-                </div>
-                <button class="btn-add-confirm" onclick="addNewWord()">+ Add to List</button>
-            </div>
-
-            <ul class="word-list" id="word-list-container">
-                </ul>
-
-            <div class="modal-footer">
-                <button class="btn-reset-data" onclick="resetAllData()">Reset to Original Default</button>
-            </div>
+    <div id="add-form-container">
+        <h3>Add New Word</h3>
+        <div class="form-group">
+            <label>Gender:</label>
+            <select id="new-gender">
+                <option value="r">Der (Masculine)</option>
+                <option value="e">Die (Feminine)</option>
+                <option value="s">Das (Neutral)</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>German Noun:</label>
+            <input type="text" id="new-word" placeholder="e.g. Tisch">
+        </div>
+        <div class="form-group">
+            <label>English Meaning:</label>
+            <input type="text" id="new-meaning" placeholder="e.g. Table">
+        </div>
+        <div class="form-buttons">
+            <button class="btn-reset" style="background:#ccc; color:#333" onclick="toggleAddForm()">Cancel</button>
+            <button class="btn-main" onclick="saveNewWord()">Save Word</button>
         </div>
     </div>
+
+    <div id="toast">Word Added!</div>
 
     <script>
-        // --- 1. DATA (Units 1-30) ---
+        // --- 1. DEFAULT DATA (Units 1-30) ---
+        // This is used if the user has no saved data in their browser.
         const defaultVocabulary = [
             { g: 'r', w: 'Abfall', m: 'Waste / Trash' }, { g: 's', w: 'Baby', m: 'Baby' }, { g: 'e', w: 'Bank', m: 'Bench / Bank' },
             { g: 'e', w: 'Blume', m: 'Flower' }, { g: 'r', w: 'Bus', m: 'Bus' }, { g: 'r', w: 'Film', m: 'Film / Movie' },
@@ -527,16 +448,22 @@
         let availableIndices = [];
         let currentWordObj = null;
 
-        const LS_KEY_VOCAB = "lagune_vocab_v2";
-        const LS_KEY_INDICES = "lagune_indices_v2";
+        // Keys for LocalStorage
+        const LS_KEY_VOCAB = "lagune_vocabulary_v1";
+        const LS_KEY_INDICES = "lagune_available_indices_v1";
 
-        // --- 2. INIT ---
+        // --- 2. INITIALIZATION ---
         function init() {
             loadData();
-            updateProgressText();
+            if (availableIndices.length === 0) {
+                // If the user has seen everything, reset or alert? 
+                // For now, let's just reset indices so they can loop again.
+                resetIndices();
+            }
             nextWord();
         }
 
+        // --- 3. DATA MANAGEMENT ---
         function loadData() {
             const storedVocab = localStorage.getItem(LS_KEY_VOCAB);
             const storedIndices = localStorage.getItem(LS_KEY_INDICES);
@@ -545,7 +472,7 @@
                 vocabulary = JSON.parse(storedVocab);
             } else {
                 vocabulary = [...defaultVocabulary];
-                saveVocabulary();
+                saveVocabulary(); // Save default to local storage
             }
 
             if (storedIndices) {
@@ -569,6 +496,14 @@
             saveIndices();
         }
 
+        function resetProgress() {
+            if(confirm("Are you sure? Doing this will forget which words you've seen so far.")) {
+                resetIndices();
+                nextWord();
+                alert("Progress reset!");
+            }
+        }
+
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -576,12 +511,7 @@
             }
         }
 
-        function updateProgressText() {
-            const count = availableIndices.length;
-            document.getElementById('progress-text').textContent = `Words remaining in current cycle: ${count}`;
-        }
-
-        // --- 3. CORE FLASHCARD LOGIC ---
+        // --- 4. INTERACTION ---
         function flipCard() {
             document.getElementById('flashcard').classList.toggle('is-flipped');
         }
@@ -589,32 +519,20 @@
         function nextWord(event) {
             if (event) event.stopPropagation();
 
-            if (vocabulary.length === 0) {
-                alert("Vocabulary list is empty! Please add words in the manager.");
-                return;
-            }
-
             if (availableIndices.length === 0) {
-                resetIndices();
+                resetIndices(); // Start over if finished
             }
 
             const wordIndex = availableIndices.pop();
-            saveIndices();
-            updateProgressText();
-
-            // Handle deleted word case (index out of bounds)
-            if (!vocabulary[wordIndex]) {
-                nextWord(); 
-                return;
-            }
-
+            saveIndices(); // Save progress immediately
+            
             currentWordObj = vocabulary[wordIndex];
 
-            // Reset Card View
+            // Reset card flip
             const card = document.getElementById('flashcard');
             card.classList.remove('is-flipped');
 
-            // Set Content with Animation Delay
+            // Set Content with delay for animation
             setTimeout(() => {
                 const articleSpan = document.getElementById('article');
                 const nounSpan = document.getElementById('noun');
@@ -632,6 +550,12 @@
                 nounSpan.textContent = currentWordObj.w;
                 meaningDiv.textContent = currentWordObj.m;
                 wordContainer.className = "word-text " + className;
+
+                // Update Progress Text
+                const total = vocabulary.length;
+                const seen = total - availableIndices.length;
+                document.getElementById('progress-text').textContent = `Words seen: ${seen} / ${total}`;
+
             }, 200);
         }
 
@@ -650,91 +574,53 @@
             window.speechSynthesis.speak(utterance);
         }
 
-        // --- 4. MANAGER UI LOGIC ---
-        function openManager() {
-            document.getElementById('manager-modal').style.display = 'flex';
-            renderList();
+        // --- 5. ADD NEW WORDS ---
+        function toggleAddForm() {
+            const form = document.getElementById('add-form-container');
+            form.style.display = (form.style.display === 'block') ? 'none' : 'block';
         }
 
-        function closeManager() {
-            document.getElementById('manager-modal').style.display = 'none';
-        }
-
-        function renderList() {
-            const container = document.getElementById('word-list-container');
-            container.innerHTML = '';
-
-            vocabulary.forEach((item, index) => {
-                const li = document.createElement('li');
-                li.className = 'list-item';
-                
-                let genderBadge = '';
-                if(item.g === 'r') genderBadge = '<span class="item-gender g-r">der</span>';
-                if(item.g === 'e') genderBadge = '<span class="item-gender g-e">die</span>';
-                if(item.g === 's') genderBadge = '<span class="item-gender g-s">das</span>';
-
-                li.innerHTML = `
-                    <div class="item-info">
-                        <div class="item-german">${genderBadge} ${item.w}</div>
-                        <div class="item-english">${item.m}</div>
-                    </div>
-                    <button class="btn-delete" onclick="deleteWord(${index})">🗑</button>
-                `;
-                container.appendChild(li);
-            });
-        }
-
-        function addNewWord() {
+        function saveNewWord() {
             const gender = document.getElementById('new-gender').value;
             const word = document.getElementById('new-word').value.trim();
             const meaning = document.getElementById('new-meaning').value.trim();
 
             if (!word || !meaning) {
-                alert("Please fill in both word and meaning.");
+                alert("Please fill in both the word and the meaning.");
                 return;
             }
 
+            // Create object
             const newObj = { g: gender, w: word, m: meaning };
-            vocabulary.unshift(newObj); // Add to top
+
+            // Add to vocabulary
+            vocabulary.push(newObj);
             saveVocabulary();
 
-            // Add to available indices so it can be shown
-            resetIndices(); // Easiest way to sync indices
+            // Make it available immediately
+            availableIndices.push(vocabulary.length - 1);
+            shuffleArray(availableIndices); // Reshuffle to mix it in
+            saveIndices();
+
+            // UI Feedback
+            document.getElementById('new-word').value = "";
+            document.getElementById('new-meaning').value = "";
+            toggleAddForm();
+            showToast();
             
-            // Clear inputs
-            document.getElementById('new-word').value = '';
-            document.getElementById('new-meaning').value = '';
-
-            renderList(); // Refresh list
-            updateProgressText();
+            // Update counts
+            const total = vocabulary.length;
+            const seen = total - availableIndices.length;
+            document.getElementById('progress-text').textContent = `Words seen: ${seen} / ${total}`;
         }
 
-        function deleteWord(index) {
-            if(!confirm(`Delete "${vocabulary[index].w}"?`)) return;
-
-            // Remove from array
-            vocabulary.splice(index, 1);
-            saveVocabulary();
-
-            // We must reset indices because shifting array invalidates old indices
-            resetIndices(); 
-            updateProgressText();
-
-            renderList();
+        function showToast() {
+            const x = document.getElementById("toast");
+            x.className = "show";
+            setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
         }
 
-        function resetAllData() {
-            if(confirm("This will delete custom words and reset progress. Are you sure?")) {
-                vocabulary = [...defaultVocabulary];
-                saveVocabulary();
-                resetIndices();
-                renderList();
-                nextWord();
-                updateProgressText();
-            }
-        }
-
-        // Start App
+        // Run
         init();
 
     </script>
