@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lagune 1 Vocabulary Flashcards (Units 1-30)</title>
+    <title>Lagune 1 Vocabulary Flashcards (Audio Enabled)</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -98,6 +98,8 @@
         .controls {
             display: flex;
             gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
         }
 
         button {
@@ -106,14 +108,26 @@
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            background-color: #00796b;
-            color: white;
             transition: background 0.3s;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            color: white;
         }
 
-        button:hover {
+        #next-btn {
+            background-color: #00796b;
+        }
+        #next-btn:hover {
             background-color: #004d40;
+        }
+
+        #speak-btn {
+            background-color: #e65100;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        #speak-btn:hover {
+            background-color: #bf360c;
         }
 
         .progress {
@@ -126,6 +140,12 @@
             font-size: 0.8em;
             color: #aaa;
             margin-top: 15px;
+        }
+
+        /* Prevent text selection on quick clicks */
+        .card, .controls {
+            user-select: none;
+            -webkit-user-select: none;
         }
     </style>
 </head>
@@ -149,14 +169,18 @@
     </div>
 
     <div class="controls">
-        <button onclick="nextWord()">Generate New Word</button>
+        <button id="speak-btn" onclick="speakWord(event)">
+            🔊 Pronounce
+        </button>
+        <button id="next-btn" onclick="nextWord(event)">
+            Next Word
+        </button>
     </div>
 
     <div class="progress" id="progress-text">Words seen: 0 / 0</div>
 
     <script>
-        // Vocabulary list (Units 1-30) extracted from Lagune 1 Arbeitsbuch
-        // g: gender (r=der, e=die, s=das), w: word, m: meaning
+        // Vocabulary list (Units 1-30)
         const vocabulary = [
             // --- UNIT 1 ---
             { g: 'r', w: 'Abfall', m: 'Waste / Trash' }, { g: 's', w: 'Baby', m: 'Baby' }, { g: 'e', w: 'Bank', m: 'Bench / Bank' },
@@ -423,7 +447,7 @@
         ];
 
         let availableIndices = [];
-        let currentIndex = -1;
+        let currentWordObj = null;
 
         function init() {
             resetIndices();
@@ -446,13 +470,15 @@
             document.getElementById('flashcard').classList.toggle('is-flipped');
         }
 
-        function nextWord() {
+        function nextWord(event) {
+            if (event) event.stopPropagation(); // Prevent card flip if button clicked
+
             if (availableIndices.length === 0) {
                 resetIndices();
             }
 
             const wordIndex = availableIndices.pop();
-            const wordObj = vocabulary[wordIndex];
+            currentWordObj = vocabulary[wordIndex];
 
             // Reset card flip
             const card = document.getElementById('flashcard');
@@ -469,21 +495,21 @@
                 let article = "";
                 let className = "";
                 
-                if (wordObj.g === 'r') {
+                if (currentWordObj.g === 'r') {
                     article = "der";
                     className = "masculine"; // Red
-                } else if (wordObj.g === 'e') {
+                } else if (currentWordObj.g === 'e') {
                     article = "die";
                     className = "feminine"; // Blue
-                } else if (wordObj.g === 's') {
+                } else if (currentWordObj.g === 's') {
                     article = "das";
                     className = "neutral"; // Black
                 }
 
                 // Apply text
                 articleSpan.textContent = article;
-                nounSpan.textContent = wordObj.w;
-                meaningDiv.textContent = wordObj.m;
+                nounSpan.textContent = currentWordObj.w;
+                meaningDiv.textContent = currentWordObj.m;
 
                 // Apply Color Class
                 wordContainer.className = "word-text " + className;
@@ -493,7 +519,28 @@
                 const seen = total - availableIndices.length;
                 document.getElementById('progress-text').textContent = `Words seen: ${seen} / ${total}`;
 
-            }, 200); // Small delay to allow flip animation to reset cleanly
+            }, 200); // Small delay
+        }
+
+        function speakWord(event) {
+            if (event) event.stopPropagation(); // Prevent card flip
+
+            if (!currentWordObj) return;
+
+            // Determine article for natural reading
+            let article = "";
+            if (currentWordObj.g === 'r') article = "der";
+            else if (currentWordObj.g === 'e') article = "die";
+            else if (currentWordObj.g === 's') article = "das";
+
+            const textToSpeak = `${article} ${currentWordObj.w}`;
+
+            // Create utterance
+            const utterance = new SpeechSynthesisUtterance(textToSpeak);
+            utterance.lang = 'de-DE'; // Set to German
+
+            // Speak
+            window.speechSynthesis.speak(utterance);
         }
 
         // Start
