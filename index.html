@@ -14,43 +14,41 @@
             min-height: 100vh;
             margin: 0;
             padding: 20px;
-            position: relative; /* For absolute positioning of nav */
+            position: relative;
         }
 
-        h1 {
-            color: #333;
-            margin-bottom: 10px;
-            text-align: center;
+        h1 { color: #333; margin-bottom: 5px; text-align: center; }
+
+        /* --- Navigation & Controls --- */
+        .top-bar {
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
         }
 
-        /* --- New Navigation Button --- */
-        .nav-link {
-            position: absolute;
-            top: 20px;
-            right: 20px;
+        .group-select {
+            padding: 8px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 1em;
+            background: white;
+            cursor: pointer;
+        }
+
+        .quiz-link {
             background-color: #00796b;
             color: white;
             text-decoration: none;
-            padding: 10px 15px;
+            padding: 8px 15px;
             border-radius: 8px;
             font-size: 0.9em;
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
             transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 5px;
         }
-        .nav-link:hover {
-            background-color: #004d40;
-            transform: translateY(-2px);
-        }
-
-        @media (max-width: 600px) {
-            .nav-link {
-                position: static;
-                margin-bottom: 15px;
-            }
-        }
+        .quiz-link:hover { background-color: #004d40; transform: translateY(-2px); }
 
         /* --- Card Styles --- */
         .card-container {
@@ -58,12 +56,11 @@
             width: 320px;
             height: 220px;
             cursor: pointer;
-            margin: 20px 0;
+            margin: 10px 0 20px 0;
         }
 
         .card {
-            width: 100%;
-            height: 100%;
+            width: 100%; height: 100%;
             position: relative;
             transform-style: preserve-3d;
             transition: transform 0.6s;
@@ -72,23 +69,15 @@
             background-color: white;
         }
 
-        .card.is-flipped {
-            transform: rotateY(180deg);
-        }
+        .card.is-flipped { transform: rotateY(180deg); }
 
         .card-face {
-            position: absolute;
-            width: 100%;
-            height: 100%;
+            position: absolute; width: 100%; height: 100%;
             backface-visibility: hidden;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            border-radius: 15px;
-            padding: 20px;
-            box-sizing: border-box;
-            text-align: center;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            border-radius: 15px; padding: 20px;
+            box-sizing: border-box; text-align: center;
         }
 
         .card-front { background-color: #fff; border: 2px solid #ddd; }
@@ -99,151 +88,56 @@
         .meaning-text { font-size: 1.4em; color: #555; line-height: 1.3; }
 
         /* Color Coding */
-        .masculine { color: #d32f2f; } /* Red */
-        .feminine { color: #1976d2; } /* Blue */
-        .neutral { color: #000000; }  /* Black */
+        .masculine { color: #d32f2f; } 
+        .feminine { color: #1976d2; } 
+        .neutral { color: #000000; }  
 
-        /* --- Controls --- */
-        .controls {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            justify-content: center;
-            margin-bottom: 20px;
-        }
-
+        /* --- Buttons --- */
+        .controls { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-bottom: 20px; }
         button {
-            padding: 10px 20px;
-            font-size: 1em;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background 0.2s, transform 0.1s;
-            color: white;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            padding: 10px 20px; font-size: 1em; border: none; border-radius: 8px;
+            cursor: pointer; transition: background 0.2s, transform 0.1s;
+            color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
         button:active { transform: scale(0.98); }
-
         .btn-main { background-color: #00796b; } 
         .btn-main:hover { background-color: #004d40; }
-        
-        .btn-speak { background-color: #e65100; display: flex; align-items: center; gap: 5px;}
-        .btn-speak:hover { background-color: #bf360c; }
-
+        .btn-speak { background-color: #e65100; }
         .btn-manage { background-color: #1976d2; }
-        .btn-manage:hover { background-color: #0d47a1; }
-
         .btn-reset { background-color: #555; font-size: 0.8em; padding: 8px 15px; margin-top: 10px;}
-        .btn-reset:hover { background-color: #333; }
 
-        .progress { color: #666; font-size: 0.9em; margin-bottom: 10px;}
+        .progress { color: #666; font-size: 0.9em; margin-bottom: 5px;}
         .hint { font-size: 0.8em; color: #aaa; margin-top: 15px; }
 
-        /* --- MANAGER MODAL STYLES (NEW) --- */
-        .modal-overlay {
-            display: none; /* Hidden by default */
-            position: fixed;
-            z-index: 1000;
-            left: 0; top: 0;
-            width: 100%; height: 100%;
-            background-color: rgba(0,0,0,0.5);
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-content {
-            background-color: #fff;
-            width: 90%;
-            max-width: 500px;
-            height: 80vh;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .modal-header {
-            padding: 15px;
-            background-color: #f1f1f1;
-            border-bottom: 1px solid #ddd;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .modal-header h2 { margin: 0; font-size: 1.2em; color: #333; }
-        .close-btn { background: none; border: none; font-size: 1.5em; color: #333; cursor: pointer; padding: 0; box-shadow: none; }
-
-        .modal-body {
-            flex: 1;
-            padding: 15px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        /* Form inside modal */
-        .add-form {
-            background: #fafafa;
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid #eee;
-        }
+        /* --- Modal & Toast (Hidden by default) --- */
+        .modal-overlay { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
+        .modal-content { background-color: #fff; width: 90%; max-width: 500px; height: 80vh; border-radius: 10px; display: flex; flex-direction: column; overflow: hidden; }
+        .modal-header { padding: 15px; background-color: #f1f1f1; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; }
+        .modal-body { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
+        .add-form { background: #fafafa; padding: 15px; border-radius: 8px; border: 1px solid #eee; }
         .form-row { display: flex; gap: 10px; margin-bottom: 10px; }
-        input, select { 
-            padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;
-        }
-        .input-word { flex: 2; }
-        .input-meaning { width: 100%; }
-        
-        /* List inside modal */
-        .word-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        .list-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px;
-            border-bottom: 1px solid #eee;
-        }
-        .list-item:hover { background-color: #f9f9f9; }
-        .item-text { flex: 1; }
-        .item-actions { display: flex; gap: 5px; }
-        
+        input, select { padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: 100%; box-sizing: border-box; }
+        .word-list { list-style: none; padding: 0; margin: 0; }
+        .list-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; }
         .btn-sm { padding: 5px 10px; font-size: 0.8em; }
         .btn-edit { background-color: #f0ad4e; color: white; }
         .btn-delete { background-color: #d9534f; color: white; }
-
-        /* Notification Toast */
-        #toast {
-            visibility: hidden;
-            min-width: 250px;
-            background-color: #333;
-            color: #fff;
-            text-align: center;
-            border-radius: 4px;
-            padding: 16px;
-            position: fixed;
-            z-index: 1001;
-            bottom: 30px;
-            font-size: 17px;
-        }
+        #toast { visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 4px; padding: 16px; position: fixed; z-index: 1001; bottom: 30px; }
         #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
-
         @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
         @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
-
     </style>
 </head>
 <body>
 
-    <a href="quiz.html" class="nav-link">📝 Go to Quiz</a>
+    <div class="top-bar">
+        <select id="group-selector" class="group-select" onchange="changeGroup()">
+            <option value="all">📚 All Words</option>
+        </select>
+        <a href="quiz.html" class="quiz-link">📝 Take Quiz</a>
+    </div>
 
-    <h1>Lagune 1 Flashcards<br><small style="font-size:0.6em; color:#777;">Deutsch Lernwortschatz</small></h1>
+    <h1>Flashcards<br><small style="font-size:0.6em; color:#777;">Lagune 1</small></h1>
     <div class="progress" id="progress-text">Loading...</div>
 
     <div class="card-container" onclick="flipCard()">
@@ -251,60 +145,49 @@
             <div class="card-face card-front">
                 <div id="german-word" class="word-text">
                     <span id="article" class="gender-article"></span>
-                    <span id="noun">Willkommen</span>
+                    <span id="noun">...</span>
                 </div>
                 <div class="hint">(Tap to flip)</div>
             </div>
             <div class="card-face card-back">
-                <div id="english-meaning" class="meaning-text">Welcome</div>
+                <div id="english-meaning" class="meaning-text">...</div>
             </div>
         </div>
     </div>
 
     <div class="controls">
-        <button class="btn-speak" onclick="speakWord(event)">🔊 Hören</button>
+        <button class="btn-speak" onclick="speakWord(event)">🔊 Hear</button>
         <button class="btn-main" onclick="nextWord(event)">Next Word</button>
-        <button class="btn-manage" onclick="openManager()">⚙ Manage Words</button>
+        <button class="btn-manage" onclick="openManager()">⚙ List</button>
     </div>
 
-    <button class="btn-reset" onclick="resetProgress()">Reset Progress (Start Over)</button>
+    <button class="btn-reset" onclick="resetProgress()">Reset Current Shuffle</button>
 
     <div id="manager-modal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Word List</h2>
-                <button class="close-btn" onclick="closeManager()">×</button>
+                <h2 style="margin:0">Manage Words</h2>
+                <button style="background:none; border:none; font-size:1.5em; cursor:pointer;" onclick="closeManager()">×</button>
             </div>
             <div class="modal-body">
-                
                 <div class="add-form">
                     <input type="hidden" id="edit-index" value="-1">
                     <div class="form-row">
-                        <select id="new-gender">
-                            <option value="r">Der</option>
-                            <option value="e">Die</option>
-                            <option value="s">Das</option>
-                        </select>
-                        <input type="text" id="new-word" class="input-word" placeholder="German Word">
+                        <select id="new-gender" style="flex:1"><option value="r">Der</option><option value="e">Die</option><option value="s">Das</option></select>
+                        <input type="text" id="new-word" style="flex:2" placeholder="German Word">
                     </div>
-                    <div class="form-row">
-                        <input type="text" id="new-meaning" class="input-meaning" placeholder="English Meaning">
-                    </div>
+                    <div class="form-row"><input type="text" id="new-meaning" placeholder="English Meaning"></div>
                     <button class="btn-main" style="width:100%" id="save-btn" onclick="saveWord()">+ Add Word</button>
                 </div>
-
-                <hr style="width:100%; border:0; border-top:1px solid #eee; margin: 10px 0;">
-
-                <ul class="word-list" id="word-list-container">
-                    </ul>
+                <ul class="word-list" id="word-list-container"></ul>
             </div>
         </div>
     </div>
-
-    <div id="toast">Action Saved!</div>
+    <div id="toast">Saved!</div>
 
     <script>
-        // --- 1. DEFAULT DATA (Units 1-30) ---
+        // --- DATA ---
+        // (Paste the full list here. I am keeping the structure you provided)
         const defaultVocabulary = [
             { g: 'r', w: 'Abfall', m: 'Waste / Trash' }, { g: 's', w: 'Baby', m: 'Baby' }, { g: 'e', w: 'Bank', m: 'Bench / Bank' },
             { g: 'e', w: 'Blume', m: 'Flower' }, { g: 'r', w: 'Bus', m: 'Bus' }, { g: 'r', w: 'Film', m: 'Film / Movie' },
@@ -540,66 +423,106 @@
             { g: 'r', w: 'Westen', m: 'West' }, { g: 'e', w: 'Wetterkarte', m: 'Weather Map' }, { g: 'r', w: 'Wind', m: 'Wind' }
         ];
 
-        // --- VARIABLES ---
         let vocabulary = [];
         let availableIndices = [];
         let currentWordObj = null;
+        let currentGroupRange = "all"; // "all" or "0-50"
+        const CHUNK_SIZE = 50;
 
-        // Keys for LocalStorage
         const LS_KEY_VOCAB = "lagune_vocabulary_v1";
         const LS_KEY_INDICES = "lagune_available_indices_v1";
+        const LS_KEY_GROUP = "lagune_selected_group"; // Shared with Quiz
 
-        // --- 2. INITIALIZATION ---
+        // --- INIT ---
         function init() {
-            loadData();
-            // If first run or empty
-            if (availableIndices.length === 0) {
-                 resetIndices();
-            }
-            nextWord();
-        }
-
-        // --- 3. DATA MANAGEMENT ---
-        function loadData() {
+            // Load Vocabulary
             const storedVocab = localStorage.getItem(LS_KEY_VOCAB);
-            const storedIndices = localStorage.getItem(LS_KEY_INDICES);
+            if (storedVocab) { vocabulary = JSON.parse(storedVocab); } 
+            else { vocabulary = [...defaultVocabulary]; saveVocabulary(); }
 
-            if (storedVocab) {
-                vocabulary = JSON.parse(storedVocab);
-            } else {
-                vocabulary = [...defaultVocabulary];
-                saveVocabulary(); // Save default to local storage
+            // Initialize Group Selector
+            populateGroupSelector();
+
+            // Load saved group or default to all
+            const savedGroup = localStorage.getItem(LS_KEY_GROUP);
+            if(savedGroup) {
+                document.getElementById('group-selector').value = savedGroup;
+                currentGroupRange = savedGroup;
             }
 
+            // Load Progress
+            const storedIndices = localStorage.getItem(LS_KEY_INDICES);
             if (storedIndices) {
                 availableIndices = JSON.parse(storedIndices);
             } else {
                 resetIndices();
             }
+
+            nextWord();
         }
 
-        function saveVocabulary() {
-            localStorage.setItem(LS_KEY_VOCAB, JSON.stringify(vocabulary));
+        // --- GROUP LOGIC ---
+        function populateGroupSelector() {
+            const select = document.getElementById('group-selector');
+            // Keep "All Words"
+            select.innerHTML = '<option value="all">📚 All Words</option>';
+            
+            const total = vocabulary.length;
+            const chunks = Math.ceil(total / CHUNK_SIZE);
+            
+            for(let i=0; i<chunks; i++) {
+                const start = i * CHUNK_SIZE;
+                const end = Math.min((i + 1) * CHUNK_SIZE, total);
+                const option = document.createElement('option');
+                option.value = `${start}-${end}`;
+                option.textContent = `Group ${i+1} (${start+1} - ${end})`;
+                select.appendChild(option);
+            }
         }
 
-        function saveIndices() {
-            localStorage.setItem(LS_KEY_INDICES, JSON.stringify(availableIndices));
+        function changeGroup() {
+            currentGroupRange = document.getElementById('group-selector').value;
+            localStorage.setItem(LS_KEY_GROUP, currentGroupRange);
+            
+            resetIndices(); // Reset shuffle when changing groups
+            nextWord();
+            
+            showToast("Group Changed");
         }
 
         function resetIndices() {
-            availableIndices = Array.from({length: vocabulary.length}, (_, i) => i);
+            // Determine range
+            let start = 0;
+            let end = vocabulary.length;
+            
+            if(currentGroupRange !== "all") {
+                const parts = currentGroupRange.split('-');
+                start = parseInt(parts[0]);
+                end = parseInt(parts[1]);
+            }
+
+            // Create array of indices for ONLY this range
+            availableIndices = [];
+            for(let i = start; i < end; i++) {
+                // Double check it exists
+                if(vocabulary[i]) availableIndices.push(i);
+            }
+            
             shuffleArray(availableIndices);
             saveIndices();
         }
 
         function resetProgress() {
-            if(confirm("Are you sure? This will forget which words you've seen, but keeps your custom words.")) {
+            if(confirm("Restart this group?")) {
                 resetIndices();
                 nextWord();
-                alert("Progress reset!");
             }
         }
 
+        // --- STANDARD APP LOGIC ---
+        function saveVocabulary() { localStorage.setItem(LS_KEY_VOCAB, JSON.stringify(vocabulary)); populateGroupSelector(); }
+        function saveIndices() { localStorage.setItem(LS_KEY_INDICES, JSON.stringify(availableIndices)); }
+        
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -607,48 +530,37 @@
             }
         }
 
-        // --- 4. INTERACTION ---
-        function flipCard() {
-            document.getElementById('flashcard').classList.toggle('is-flipped');
-        }
+        function flipCard() { document.getElementById('flashcard').classList.toggle('is-flipped'); }
 
         function nextWord(event) {
             if (event) event.stopPropagation();
 
-            if (vocabulary.length === 0) {
-                alert("No words available! Please add some.");
-                return;
-            }
-
             if (availableIndices.length === 0) {
-                resetIndices(); // Start over if finished
+                // Check if the group is actually empty (no words) or just finished
+                if(getGroupCount() === 0) {
+                     alert("No words in this group!");
+                     return;
+                }
+                resetIndices(); // Start over
             }
 
             const wordIndex = availableIndices.pop();
-            saveIndices(); // Save progress immediately
+            saveIndices();
             
-            // Check if index still exists (in case user deleted the word)
-            if (!vocabulary[wordIndex]) {
-                 nextWord(); // skip if invalid
-                 return;
-            }
-
             currentWordObj = vocabulary[wordIndex];
+            if(!currentWordObj) { nextWord(); return; } // Safety skip
 
-            // Reset card flip
+            // Reset UI
             const card = document.getElementById('flashcard');
             card.classList.remove('is-flipped');
 
-            // Set Content with delay for animation
             setTimeout(() => {
                 const articleSpan = document.getElementById('article');
                 const nounSpan = document.getElementById('noun');
                 const meaningDiv = document.getElementById('english-meaning');
                 const wordContainer = document.getElementById('german-word');
 
-                let article = "";
-                let className = "";
-                
+                let article = ""; let className = "";
                 if (currentWordObj.g === 'r') { article = "der"; className = "masculine"; }
                 else if (currentWordObj.g === 'e') { article = "die"; className = "feminine"; }
                 else if (currentWordObj.g === 's') { article = "das"; className = "neutral"; }
@@ -658,157 +570,100 @@
                 meaningDiv.textContent = currentWordObj.m;
                 wordContainer.className = "word-text " + className;
 
-                // Update Progress Text
-                const total = vocabulary.length;
-                const seen = total - availableIndices.length;
-                document.getElementById('progress-text').textContent = `Words seen: ${seen} / ${total}`;
-
+                // Stats
+                const groupSize = getGroupCount();
+                const remaining = availableIndices.length;
+                const seen = groupSize - remaining;
+                document.getElementById('progress-text').textContent = `Reviewing: ${seen} / ${groupSize}`;
             }, 200);
+        }
+
+        function getGroupCount() {
+            if(currentGroupRange === "all") return vocabulary.length;
+            const parts = currentGroupRange.split('-');
+            return parseInt(parts[1]) - parseInt(parts[0]);
         }
 
         function speakWord(event) {
             if (event) event.stopPropagation();
             if (!currentWordObj) return;
-
-            let article = "";
-            if (currentWordObj.g === 'r') article = "der";
-            else if (currentWordObj.g === 'e') article = "die";
-            else if (currentWordObj.g === 's') article = "das";
-
-            const textToSpeak = `${article} ${currentWordObj.w}`;
-            const utterance = new SpeechSynthesisUtterance(textToSpeak);
-            utterance.lang = 'de-DE';
-            window.speechSynthesis.speak(utterance);
+            const map = {r:'der', e:'die', s:'das'};
+            const text = `${map[currentWordObj.g]} ${currentWordObj.w}`;
+            const u = new SpeechSynthesisUtterance(text);
+            u.lang = 'de-DE';
+            window.speechSynthesis.speak(u);
         }
 
-        // --- 5. MANAGER FUNCTIONS (NEW) ---
-
-        function openManager() {
-            renderList();
-            document.getElementById('manager-modal').style.display = 'flex';
-        }
-
-        function closeManager() {
+        // --- MANAGER ---
+        function openManager() { renderList(); document.getElementById('manager-modal').style.display = 'flex'; }
+        function closeManager() { 
             document.getElementById('manager-modal').style.display = 'none';
-            // Clear inputs and reset edit state
-            document.getElementById('new-word').value = '';
+            document.getElementById('new-word').value = ''; 
             document.getElementById('new-meaning').value = '';
             document.getElementById('edit-index').value = '-1';
             document.getElementById('save-btn').textContent = '+ Add Word';
         }
 
         function renderList() {
-            const listContainer = document.getElementById('word-list-container');
-            listContainer.innerHTML = ''; // Clear current list
-
+            const list = document.getElementById('word-list-container');
+            list.innerHTML = '';
             vocabulary.forEach((item, index) => {
                 const li = document.createElement('li');
                 li.className = 'list-item';
-                
-                // Gender Label
-                let genderLabel = '';
-                if(item.g === 'r') genderLabel = '(der)';
-                if(item.g === 'e') genderLabel = '(die)';
-                if(item.g === 's') genderLabel = '(das)';
-
-                li.innerHTML = `
-                    <div class="item-text">
-                        <strong>${item.w}</strong> <small>${genderLabel}</small><br>
-                        <span style="color:#666">${item.m}</span>
-                    </div>
-                    <div class="item-actions">
-                        <button class="btn-sm btn-edit" onclick="editWord(${index})">Edit</button>
-                        <button class="btn-sm btn-delete" onclick="deleteWord(${index})">Delete</button>
-                    </div>
-                `;
-                listContainer.appendChild(li);
+                let g = (item.g==='r')?'der':(item.g==='e')?'die':'das';
+                li.innerHTML = `<div><strong>${item.w}</strong> <small>(${g})</small><br><span style="color:#666">${item.m}</span></div>
+                    <div><button class="btn-sm btn-edit" onclick="editWord(${index})">Edit</button>
+                    <button class="btn-sm btn-delete" onclick="deleteWord(${index})">Del</button></div>`;
+                list.appendChild(li);
             });
         }
 
         function saveWord() {
-            const gender = document.getElementById('new-gender').value;
-            const word = document.getElementById('new-word').value.trim();
-            const meaning = document.getElementById('new-meaning').value.trim();
-            const editIndex = parseInt(document.getElementById('edit-index').value);
+            const g = document.getElementById('new-gender').value;
+            const w = document.getElementById('new-word').value.trim();
+            const m = document.getElementById('new-meaning').value.trim();
+            const idx = parseInt(document.getElementById('edit-index').value);
 
-            if (!word || !meaning) {
-                alert("Please fill in both the word and the meaning.");
-                return;
+            if (!w || !m) return alert("Fill all fields");
+            const newObj = { g, w, m };
+
+            if (idx > -1) { vocabulary[idx] = newObj; showToast("Updated"); } 
+            else { 
+                vocabulary.push(newObj); 
+                // Determine if this new word fits in current group
+                if(currentGroupRange === "all") {
+                    availableIndices.push(vocabulary.length - 1);
+                    shuffleArray(availableIndices);
+                    saveIndices();
+                }
+                showToast("Added"); 
             }
-
-            const newObj = { g: gender, w: word, m: meaning };
-
-            if (editIndex > -1) {
-                // UPDATE EXISTING
-                vocabulary[editIndex] = newObj;
-                showToast("Word Updated!");
-            } else {
-                // ADD NEW
-                vocabulary.push(newObj);
-                // Add to available indices so it can be seen
-                availableIndices.push(vocabulary.length - 1);
-                shuffleArray(availableIndices);
-                saveIndices();
-                showToast("Word Added!");
-            }
-
-            saveVocabulary();
-            renderList(); // Refresh list to show changes
-            
-            // Clear form
-            document.getElementById('new-word').value = '';
-            document.getElementById('new-meaning').value = '';
-            document.getElementById('edit-index').value = '-1';
-            document.getElementById('save-btn').textContent = '+ Add Word';
-
-            // Update stats
-            const total = vocabulary.length;
-            const seen = total - availableIndices.length;
-            document.getElementById('progress-text').textContent = `Words seen: ${seen} / ${total}`;
+            saveVocabulary(); renderList();
+            document.getElementById('new-word').value = ''; document.getElementById('new-meaning').value = '';
         }
 
-        function editWord(index) {
-            const item = vocabulary[index];
+        function editWord(i) {
+            const item = vocabulary[i];
             document.getElementById('new-gender').value = item.g;
             document.getElementById('new-word').value = item.w;
             document.getElementById('new-meaning').value = item.m;
-            document.getElementById('edit-index').value = index;
-            document.getElementById('save-btn').textContent = '💾 Update Word';
-            
-            // Scroll to top of modal form
-            document.querySelector('.modal-body').scrollTop = 0;
+            document.getElementById('edit-index').value = i;
+            document.getElementById('save-btn').textContent = '💾 Update';
         }
 
-        function deleteWord(index) {
-            if(!confirm(`Delete "${vocabulary[index].w}"?`)) return;
-
-            vocabulary.splice(index, 1);
-            saveVocabulary();
-            
-            // Because removing an item shifts indices, existing availableIndices might point to wrong items.
-            // Simplest safe approach: Reset progress indices to match new array state.
-            // Or filter out invalid indices, but reshuffling is safer for consistency.
-            resetIndices(); 
-            
-            renderList();
-            showToast("Word Deleted");
-
-            // Update stats
-            const total = vocabulary.length;
-            const seen = total - availableIndices.length;
-            document.getElementById('progress-text').textContent = `Words seen: ${seen} / ${total}`;
+        function deleteWord(i) {
+            if(!confirm("Delete?")) return;
+            vocabulary.splice(i, 1);
+            saveVocabulary(); renderList(); resetIndices(); showToast("Deleted");
         }
 
         function showToast(msg) {
             const x = document.getElementById("toast");
-            if(msg) x.textContent = msg;
-            x.className = "show";
-            setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+            x.textContent = msg; x.className = "show";
+            setTimeout(() => x.className = x.className.replace("show", ""), 3000);
         }
 
-        // Run
         init();
-
     </script>
 </body>
 </html>
